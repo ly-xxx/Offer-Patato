@@ -39,8 +39,8 @@ if [[ "${PRETRANSLATE_QUESTIONS:-1}" == "1" ]]; then
     --limit "${TRANSLATE_LIMIT:-all}" \
     --batchSize "${TRANSLATE_BATCH_SIZE:-10}" \
     --concurrency "${TRANSLATE_CONCURRENCY:-2}" \
-    --model "${TRANSLATE_MODEL:-gpt-5.2}" \
-    --effort "${TRANSLATE_EFFORT:-medium}"
+    --model "${TRANSLATE_MODEL:-gpt-5.4}" \
+    --effort "${TRANSLATE_EFFORT:-low}"
 fi
 
 if [[ "${PREGENERATE_ANSWERS:-0}" == "1" ]]; then
