@@ -54,19 +54,23 @@ OfferLoom 会把一个知识点拆成三层：
 
 ## 技术报告速览
 
-如果你是从 GitHub 搜到这个项目，下面这些关键词基本就是 OfferLoom 的技术骨架：
+新版技术报告已经不是一份“产品概念说明”，而是按真实实现拆开的系统报告。
 
-- hybrid retrieval
-- precision gate
-- chapter fallback bucket
-- interview question backlinking
-- personalized interview answer generation
-- `mywork` evidence grading
-- visual onboarding
-- one-command local deploy
+如果你是从 GitHub 搜到这个项目，可以直接在技术报告里看到这些主线：
+
+- 我们实际构造了哪些 agent
+  `Index Agent`、`Answer Agent`、`Managed Codex Console Agent`、`PTY Codex Runtime`
+- 我们实际写了哪些 skills
+  哪些已经接入主链路，哪些还是 prompt 资产但尚未自动编排
+- OfferLoom 和 `codex-cli` 是怎么协作的
+  `codex exec + schema`、受管 console、真终端 PTY 三条链路如何分工
+- 数据如何流动
+  从 sources / `mywork` / OCR 导入，到索引、翻译、答案生成、实时刷新
+- 数据结构是什么样的
+  来源配置、SQLite schema、link relations、前端 TypeScript types、answer / console JSON schema
 
 对应说明集中写在 [docs/TECHNICAL_REPORT.md](./docs/TECHNICAL_REPORT.md)。
-README 负责上手，技术报告负责说明为什么这样设计。
+README 负责上手，技术报告负责把实现边界、运行链路和数据结构讲完整。
 
 ## 仓库内置的公开示例来源
 
@@ -260,9 +264,9 @@ OfferLoom 对 `mywork` 不是“见到文件就全吃”，而是保守扫描：
 ## 文档索引
 
 - [docs/TECHNICAL_REPORT.md](./docs/TECHNICAL_REPORT.md)
-  检索、匹配、RAG 设计、生成策略与 UI 结构说明
+  系统架构、agents、skills、`codex-cli` 协作、数据流与数据结构总览
 - [docs/TECHNICAL_REPORT.en.md](./docs/TECHNICAL_REPORT.en.md)
-  English technical report for GitHub readers
+  English system report covering agents, skills, Codex collaboration, data flow, and schemas
 - [docs/SOURCES.md](./docs/SOURCES.md)
   仓库内置公开示例源及其上游地址
 - [docs/SOURCES.en.md](./docs/SOURCES.en.md)

@@ -54,18 +54,22 @@ See [docs/TECHNICAL_REPORT.en.md](./docs/TECHNICAL_REPORT.en.md) for the technic
 
 ## Technical report in one glance
 
-If you found this project from GitHub search, these keywords describe the core shape of OfferLoom:
+The new technical report is no longer just a product-level overview. It is now an implementation-oriented system report.
 
-- hybrid retrieval
-- precision gate
-- chapter fallback bucket
-- interview question backlinking
-- personalized interview answer generation
-- `mywork` evidence grading
-- visual onboarding
-- one-command local deploy
+If you found this project through GitHub search, the report now covers these concrete threads:
 
-The details live in [docs/TECHNICAL_REPORT.en.md](./docs/TECHNICAL_REPORT.en.md). The README is for onboarding; the technical report explains why the system is built this way.
+- which agents we actually built
+  `Index Agent`, `Answer Agent`, `Managed Codex Console Agent`, and the interactive `PTY Codex Runtime`
+- which skills we actually wrote
+  including which ones are already wired into the main runtime path and which ones are currently prompt assets only
+- how OfferLoom collaborates with `codex-cli`
+  including `codex exec + schema`, the managed console path, and the true PTY terminal path
+- how data flows through the system
+  from sources / `mywork` / OCR imports to indexing, translation, answer generation, and live refresh
+- what the core data structures look like
+  including source config, SQLite schema, link relations, frontend TypeScript types, and answer / console JSON schemas
+
+The details live in [docs/TECHNICAL_REPORT.en.md](./docs/TECHNICAL_REPORT.en.md). The README is for onboarding; the technical report explains the real execution model, data model, and system boundaries.
 
 ## Built-in public example sources
 
@@ -259,7 +263,7 @@ Before publishing or sharing the repo, read:
 ## Documentation index
 
 - [docs/TECHNICAL_REPORT.en.md](./docs/TECHNICAL_REPORT.en.md)
-  retrieval, matching, RAG design, generation strategy, and UI structure
+  system architecture, agents, skills, Codex collaboration, data flow, and schemas
 - [docs/SOURCES.en.md](./docs/SOURCES.en.md)
   built-in public example sources and upstream attribution
 - [docs/MYWORK.en.md](./docs/MYWORK.en.md)
