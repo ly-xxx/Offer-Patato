@@ -13,9 +13,14 @@ export const ROOT_DIR = path.resolve(path.dirname(fileURLToPath(new URL(import.m
 export const DATA_DIR = path.join(ROOT_DIR, 'data')
 export const SOURCES_DIR = path.join(DATA_DIR, 'sources')
 export const GENERATED_DIR = path.join(DATA_DIR, 'generated')
-export const DB_PATH = process.env.OFFERLOOM_DB_PATH
-  ? path.resolve(ROOT_DIR, process.env.OFFERLOOM_DB_PATH)
-  : path.join(DATA_DIR, 'offerloom.db')
+const DEFAULT_DB_PATH = path.join(DATA_DIR, 'offerpotato.db')
+const LEGACY_DB_PATH = path.join(DATA_DIR, 'offerloom.db')
+const configuredDbPath = getEnvValue('OFFERPOTATO_DB_PATH', 'OFFERLOOM_DB_PATH')
+export const DB_PATH = configuredDbPath
+  ? path.resolve(ROOT_DIR, configuredDbPath)
+  : !existsSync(DEFAULT_DB_PATH) && existsSync(LEGACY_DB_PATH)
+    ? LEGACY_DB_PATH
+    : DEFAULT_DB_PATH
 export const DEFAULT_CONFIG_PATH = path.join(ROOT_DIR, 'config', 'sources.json')
 export const DEFAULT_WORK_MANIFEST_PATH = path.join(ROOT_DIR, 'config', 'work-manifest.json')
 export const RUNTIME_CONFIG_PATH = path.join(ROOT_DIR, 'config', 'sources.runtime.json')
@@ -64,8 +69,23 @@ const IGNORE_DIRS = [
 ]
 const execFileAsync = promisify(execFile)
 
+function getEnvValue(...keys) {
+  for (const key of keys) {
+    const value = process.env[key]
+    if (typeof value === 'string' && value.trim()) {
+      return value
+    }
+  }
+  return ''
+}
+
+function isEnvFlagEnabled(...keys) {
+  return getEnvValue(...keys) === '1'
+}
+
 export function resolveConfigPath(configEnvKey, fallbackPath) {
-  const configuredPath = process.env[configEnvKey]
+  const keys = Array.isArray(configEnvKey) ? configEnvKey : [configEnvKey]
+  const configuredPath = getEnvValue(...keys)
   return configuredPath ? path.resolve(ROOT_DIR, configuredPath) : fallbackPath
 }
 
@@ -95,8 +115,8 @@ export async function readWorkManifest(config = null) {
 }
 
 async function resolveSourcesConfigPath() {
-  if (process.env.OFFERLOOM_SOURCES_CONFIG) {
-    return resolveConfigPath('OFFERLOOM_SOURCES_CONFIG', DEFAULT_CONFIG_PATH)
+  if (getEnvValue('OFFERPOTATO_SOURCES_CONFIG', 'OFFERLOOM_SOURCES_CONFIG')) {
+    return resolveConfigPath(['OFFERPOTATO_SOURCES_CONFIG', 'OFFERLOOM_SOURCES_CONFIG'], DEFAULT_CONFIG_PATH)
   }
   if (await pathExists(RUNTIME_CONFIG_PATH)) {
     return RUNTIME_CONFIG_PATH
@@ -108,8 +128,8 @@ async function resolveWorkManifestPath(config = null) {
   if (config?.myWork?.manifestPath) {
     return path.resolve(ROOT_DIR, config.myWork.manifestPath)
   }
-  if (process.env.OFFERLOOM_WORK_MANIFEST) {
-    return resolveConfigPath('OFFERLOOM_WORK_MANIFEST', DEFAULT_WORK_MANIFEST_PATH)
+  if (getEnvValue('OFFERPOTATO_WORK_MANIFEST', 'OFFERLOOM_WORK_MANIFEST')) {
+    return resolveConfigPath(['OFFERPOTATO_WORK_MANIFEST', 'OFFERLOOM_WORK_MANIFEST'], DEFAULT_WORK_MANIFEST_PATH)
   }
   if (await pathExists(RUNTIME_WORK_MANIFEST_PATH)) {
     return RUNTIME_WORK_MANIFEST_PATH
@@ -412,11 +432,15 @@ export async function inspectWorkProject(projectPath) {
 }
 
 async function autoPreferLocalMyWork(config, configPath) {
-  if (!config?.myWork || process.env.OFFERLOOM_DISABLE_AUTO_MYWORK === '1' || process.env.OFFERLOOM_FORCE_SAMPLE_WORK === '1') {
+  if (
+    !config?.myWork ||
+    isEnvFlagEnabled('OFFERPOTATO_DISABLE_AUTO_MYWORK', 'OFFERLOOM_DISABLE_AUTO_MYWORK') ||
+    isEnvFlagEnabled('OFFERPOTATO_FORCE_SAMPLE_WORK', 'OFFERLOOM_FORCE_SAMPLE_WORK')
+  ) {
     return config
   }
 
-  const explicitConfig = process.env.OFFERLOOM_SOURCES_CONFIG
+  const explicitConfig = getEnvValue('OFFERPOTATO_SOURCES_CONFIG', 'OFFERLOOM_SOURCES_CONFIG')
   if (explicitConfig && path.resolve(ROOT_DIR, explicitConfig) !== path.resolve(configPath)) {
     return config
   }

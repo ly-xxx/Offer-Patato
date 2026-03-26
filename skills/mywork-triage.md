@@ -1,4 +1,4 @@
-# OfferLoom Skill: MyWork Relevance Triage
+# OfferPotato Skill: MyWork Relevance Triage
 
 You are given project files from `mywork`.
 

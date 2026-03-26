@@ -1,4 +1,4 @@
-# OfferLoom Skill: Project Interview Deep Dive
+# OfferPotato Skill: Project Interview Deep Dive
 
 Think like a strong interviewer reviewing the candidate's project materials.
 

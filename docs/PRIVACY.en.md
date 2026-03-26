@@ -2,7 +2,7 @@
 
 [中文版本](../docs/PRIVACY.md)
 
-OfferLoom is intentionally designed as a “public base + private workset” system, so the boundaries should stay explicit.
+OfferPotato is intentionally designed as a “public base + private workset” system, so the boundaries should stay explicit.
 
 ## Public data
 

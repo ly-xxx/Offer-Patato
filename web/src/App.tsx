@@ -195,12 +195,18 @@ type AnswerJobLaunchContext = {
   startedAt: string
 }
 
-const UI_STATE_STORAGE_KEY = 'offerloom.workspace-ui.v1'
-const DOC_SCROLL_STORAGE_KEY = 'offerloom.doc-scroll.v1'
-const INTERVIEW_SCROLL_STORAGE_KEY = 'offerloom.interview-scroll.v1'
-const VIEW_STATE_STORAGE_KEY = 'offerloom.view-state.v1'
-const ANSWER_EFFORT_STORAGE_KEY = 'offerloom.answer-effort.v1'
-const ANSWER_JOB_CONTEXT_STORAGE_KEY = 'offerloom.answer-job-context.v1'
+const UI_STATE_STORAGE_KEY = 'offerpotato.workspace-ui.v1'
+const DOC_SCROLL_STORAGE_KEY = 'offerpotato.doc-scroll.v1'
+const INTERVIEW_SCROLL_STORAGE_KEY = 'offerpotato.interview-scroll.v1'
+const VIEW_STATE_STORAGE_KEY = 'offerpotato.view-state.v1'
+const ANSWER_EFFORT_STORAGE_KEY = 'offerpotato.answer-effort.v1'
+const ANSWER_JOB_CONTEXT_STORAGE_KEY = 'offerpotato.answer-job-context.v1'
+const LEGACY_UI_STATE_STORAGE_KEY = 'offerloom.workspace-ui.v1'
+const LEGACY_DOC_SCROLL_STORAGE_KEY = 'offerloom.doc-scroll.v1'
+const LEGACY_INTERVIEW_SCROLL_STORAGE_KEY = 'offerloom.interview-scroll.v1'
+const LEGACY_VIEW_STATE_STORAGE_KEY = 'offerloom.view-state.v1'
+const LEGACY_ANSWER_EFFORT_STORAGE_KEY = 'offerloom.answer-effort.v1'
+const LEGACY_ANSWER_JOB_CONTEXT_STORAGE_KEY = 'offerloom.answer-job-context.v1'
 const GUIDE_FALLBACK_SECTION_ANCHOR = 'chapter-question-bank'
 const DOCUMENT_SCROLL_VIEWPORT_OFFSET = 104
 const CODEX_FLOAT_DEFAULT_WIDTH = 432
@@ -4328,7 +4334,7 @@ function readWorkspaceUiState(): WorkspaceUiState {
   }
 
   try {
-    const raw = window.localStorage.getItem(UI_STATE_STORAGE_KEY)
+    const raw = readLocalStorageWithLegacy(UI_STATE_STORAGE_KEY, LEGACY_UI_STATE_STORAGE_KEY)
     if (!raw) {
       return DEFAULT_UI_STATE
     }
@@ -4371,7 +4377,7 @@ function readStoredAnswerEffort(): AnswerGenerationEffort {
   }
 
   try {
-    const raw = window.localStorage.getItem(ANSWER_EFFORT_STORAGE_KEY)
+    const raw = readLocalStorageWithLegacy(ANSWER_EFFORT_STORAGE_KEY, LEGACY_ANSWER_EFFORT_STORAGE_KEY)
     return raw === 'low' || raw === 'high' || raw === 'xhigh' ? raw : 'high'
   } catch {
     return 'high'
@@ -4394,7 +4400,7 @@ function readAnswerJobContexts() {
   }
 
   try {
-    const raw = window.localStorage.getItem(ANSWER_JOB_CONTEXT_STORAGE_KEY)
+    const raw = readLocalStorageWithLegacy(ANSWER_JOB_CONTEXT_STORAGE_KEY, LEGACY_ANSWER_JOB_CONTEXT_STORAGE_KEY)
     if (!raw) {
       return {}
     }
@@ -4440,7 +4446,7 @@ function readDocumentScrollState() {
   }
 
   try {
-    const raw = window.localStorage.getItem(DOC_SCROLL_STORAGE_KEY)
+    const raw = readLocalStorageWithLegacy(DOC_SCROLL_STORAGE_KEY, LEGACY_DOC_SCROLL_STORAGE_KEY)
     if (!raw) {
       return {}
     }
@@ -4473,7 +4479,7 @@ function readInterviewScrollState() {
   }
 
   try {
-    const raw = window.localStorage.getItem(INTERVIEW_SCROLL_STORAGE_KEY)
+    const raw = readLocalStorageWithLegacy(INTERVIEW_SCROLL_STORAGE_KEY, LEGACY_INTERVIEW_SCROLL_STORAGE_KEY)
     if (!raw) {
       return {}
     }
@@ -4510,7 +4516,7 @@ function readWorkspaceViewState(): WorkspaceViewState {
   }
 
   try {
-    const raw = window.localStorage.getItem(VIEW_STATE_STORAGE_KEY)
+    const raw = readLocalStorageWithLegacy(VIEW_STATE_STORAGE_KEY, LEGACY_VIEW_STATE_STORAGE_KEY)
     if (!raw) {
       return {
         guideDocumentId: null,
@@ -4541,6 +4547,27 @@ function writeWorkspaceViewState(state: WorkspaceViewState) {
   try {
     window.localStorage.setItem(VIEW_STATE_STORAGE_KEY, JSON.stringify(state))
   } catch {}
+}
+
+function readLocalStorageWithLegacy(primaryKey: string, legacyKey?: string) {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const primaryValue = window.localStorage.getItem(primaryKey)
+  if (primaryValue !== null) {
+    return primaryValue
+  }
+
+  if (!legacyKey) {
+    return null
+  }
+
+  const legacyValue = window.localStorage.getItem(legacyKey)
+  if (legacyValue !== null) {
+    window.localStorage.setItem(primaryKey, legacyValue)
+  }
+  return legacyValue
 }
 
 function getDocumentScrollBaseTop(documentId: string) {

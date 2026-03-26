@@ -88,7 +88,7 @@ type WorkProjectRow = {
   summary: string
 }
 
-export class OfferLoomDb {
+export class OfferPotatoDb {
   private db: Database.Database
   private databasePath: string
 

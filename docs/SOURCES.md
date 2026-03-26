@@ -1,6 +1,6 @@
 # Public Example Sources
 
-OfferLoom 仓库内默认内置了三套公开示例来源，方便开箱即用：
+OfferPotato 仓库内默认内置了三套公开示例来源，方便开箱即用：
 
 ## 主线文档
 

@@ -221,7 +221,7 @@ function applyTranslation(
 
 async function translateBatch(batch, model, reasoningEffort) {
   const prompt = buildPrompt(batch)
-  const outputFile = path.join(os.tmpdir(), `offerloom-translate-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.json`)
+  const outputFile = path.join(os.tmpdir(), `offerpotato-translate-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.json`)
 
   return new Promise((resolve, reject) => {
     const args = [

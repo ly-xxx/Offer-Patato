@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "OfferLoomQuestionTranslationBatch",
+  "title": "OfferPotatoQuestionTranslationBatch",
   "type": "object",
   "required": [
     "items"

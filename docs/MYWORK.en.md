@@ -2,7 +2,7 @@
 
 [中文版本](../docs/MYWORK.md)
 
-`mywork/` is the most important private input for OfferLoom’s personalized answer generation.
+`mywork/` is the most important private input for OfferPotato’s personalized answer generation.
 
 It is not an optional attachment. It is the main evidence entry point the system uses to decide what you actually built, how deeply you can talk about it, and which projects should be skipped early.
 
@@ -20,7 +20,7 @@ Try to keep each project complete:
 - debugging retrospectives
 - deployment notes
 
-If a project only contains raw code and no README or design explanation, OfferLoom can still scan it, but the resulting interview answers are usually much weaker.
+If a project only contains raw code and no README or design explanation, OfferPotato can still scan it, but the resulting interview answers are usually much weaker.
 
 ## Recommended structure
 
@@ -41,7 +41,7 @@ mywork/
 
 ## Scanning strategy
 
-OfferLoom handles `mywork` conservatively:
+OfferPotato handles `mywork` conservatively:
 
 1. It first checks whether a directory really looks like a project.
 2. If the structure is clearly mismatched, it stops early instead of drilling deeper.
@@ -56,7 +56,7 @@ OfferLoom handles `mywork` conservatively:
 - place at least one strong README in every project root
 - add a markdown summary next to important PDFs
 - explicitly document ownership, technical decisions, failures, metric changes, and retrospectives
-- if a project is unrelated to the target role, you do not need to delete it; OfferLoom will try to stop early and skip it
+- if a project is unrelated to the target role, you do not need to delete it; OfferPotato will try to stop early and skip it
 
 ## Path convention
 

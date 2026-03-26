@@ -2,7 +2,7 @@
 
 [中文版本](../docs/RELEASE.md)
 
-This is the pre-release checklist for publishing OfferLoom to GitHub.
+This is the pre-release checklist for publishing OfferPotato to GitHub.
 
 ## Public content that must stay
 
@@ -18,7 +18,7 @@ This is the pre-release checklist for publishing OfferLoom to GitHub.
 
 - your real project materials under `mywork/`
 - `config/*.runtime.json`
-- `data/offerloom.db*`
+- `data/offerpotato.db*`
 - generated answers in `data/generated/*`
 - `data/models/*`
 - temporary source mirrors in `data/sources/*`

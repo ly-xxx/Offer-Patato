@@ -1,10 +1,10 @@
-# OfferLoom Technical Report
+# OfferPotato Technical Report
 
 [中文版本](./TECHNICAL_REPORT.md)
 
 ## 1. Overview
 
-OfferLoom is a local-first interview-preparation system that unifies three classes of input:
+OfferPotato is a local-first interview-preparation system that unifies three classes of input:
 
 - structured study guides
 - interview question banks
@@ -200,7 +200,7 @@ This component provides true terminal semantics rather than schema-constrained b
 4. stdout and stderr are streamed back to the browser
 5. the frontend renders a draggable, collapsible, resizable terminal pane
 
-This path preserves native `codex-cli` interaction while allowing OfferLoom to add model selection, file injection, document references, and live refresh.
+This path preserves native `codex-cli` interaction while allowing OfferPotato to add model selection, file injection, document references, and live refresh.
 
 ### 4.5 Supporting workers
 
@@ -259,7 +259,7 @@ In the current design, skills function primarily as task-specific instruction te
 
 ## 6. Collaboration modes with `codex-cli`
 
-OfferLoom integrates with `codex-cli` through three complementary paths.
+OfferPotato integrates with `codex-cli` through three complementary paths.
 
 ### 6.1 Schema-constrained batch mode
 
@@ -291,7 +291,7 @@ Properties:
 
 ### 6.2 Managed console mode
 
-This mode is built on `codex exec`, but OfferLoom controls the surrounding context. In addition to the user’s current message, the system injects:
+This mode is built on `codex exec`, but OfferPotato controls the surrounding context. In addition to the user’s current message, the system injects:
 
 - recent conversation history
 - the current document
@@ -302,7 +302,7 @@ This mode is built on `codex exec`, but OfferLoom controls the surrounding conte
 The division of responsibilities is therefore:
 
 - `codex-cli` performs reasoning and file operations
-- OfferLoom assembles context, governs the task, and structures the result
+- OfferPotato assembles context, governs the task, and structures the result
 
 ### 6.3 PTY interactive mode
 
@@ -562,9 +562,9 @@ As a result, the system can operate in hybrid mode when embeddings are available
 
 Core configuration types include:
 
-- `OfferLoomSource`
-- `OfferLoomWorkSource`
-- `OfferLoomSourcesConfig`
+- `OfferPotatoSource`
+- `OfferPotatoWorkSource`
+- `OfferPotatoSourcesConfig`
 
 A simplified example is:
 
@@ -748,7 +748,7 @@ In addition to the three content views, the frontend also handles:
 
 ## 11. Release and privacy boundary
 
-OfferLoom is intended to be published as a public base plus a private work layer:
+OfferPotato is intended to be published as a public base plus a private work layer:
 
 - public sample sources can stay in the repository
 - `mywork/` should remain outside version control

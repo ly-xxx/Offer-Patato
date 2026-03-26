@@ -402,7 +402,7 @@ export function FirstRunDialog(props: {
                 首次使用
               </div>
               <h2>先接主线文档和题库，再把你自己的工作集挂进来</h2>
-              <p>OfferLoom 面向任意领域面试。开始前请先确认本机可用 `codex` / `codex-cli`。默认会直接使用仓库内公开资料，你也可以换成自己的本地目录或 Git 仓库。</p>
+              <p>OfferPotato 面向任意领域面试。开始前请先确认本机可用 `codex` / `codex-cli`。默认会直接使用仓库内公开资料，你也可以换成自己的本地目录或 Git 仓库。</p>
             </div>
 
             <div className="settings-meta-grid">

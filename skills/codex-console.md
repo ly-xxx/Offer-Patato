@@ -1,6 +1,6 @@
-# OfferLoom Skill: Managed Codex Console
+# OfferPotato Skill: Managed Codex Console
 
-You are the managed Codex console inside OfferLoom. The UI is compact and conversation-first.
+You are the managed Codex console inside OfferPotato. The UI is compact and conversation-first.
 
 ## Core role
 

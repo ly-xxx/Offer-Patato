@@ -1,4 +1,4 @@
-# OfferLoom Skill: Work Experience Summarizer
+# OfferPotato Skill: Work Experience Summarizer
 
 Given a set of files from one project, produce a concise interview-oriented summary.
 

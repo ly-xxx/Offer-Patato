@@ -1,6 +1,6 @@
 # Privacy and Data Handling
 
-OfferLoom 默认就是“公开底座 + 私有工作集”的混合模式，所以边界要清楚。
+OfferPotato 默认就是“公开底座 + 私有工作集”的混合模式，所以边界要清楚。
 
 ## 公开数据
 

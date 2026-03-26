@@ -2,7 +2,7 @@
 
 ## The site returns 502 / Bad Gateway
 
-In most cases this is a proxy issue, not an OfferLoom crash.
+In most cases this is a proxy issue, not an OfferPotato crash.
 
 Check the service directly:
 
@@ -16,7 +16,7 @@ Fixes:
 
 - add `127.0.0.1` and `localhost` to `NO_PROXY`
 - add your LAN IP to the browser or system proxy bypass list
-- access the exact URLs printed by OfferLoom on startup
+- access the exact URLs printed by OfferPotato on startup
 
 ## The UI loads but documents do not refresh
 

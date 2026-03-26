@@ -1,6 +1,6 @@
 # Configuration
 
-OfferLoom 的来源配置分成两层：
+OfferPotato 的来源配置分成两层：
 
 - 仓库内默认公开配置
 - 本地运行时私有配置
@@ -62,8 +62,8 @@ sources/question-banks/*
 不要直接改追踪中的默认配置。推荐使用：
 
 ```bash
-OFFERLOOM_SOURCES_CONFIG=./config/sources.local.example.json \
-OFFERLOOM_WORK_MANIFEST=./config/work-manifest.local.example.json \
+OFFERPOTATO_SOURCES_CONFIG=./config/sources.local.example.json \
+OFFERPOTATO_WORK_MANIFEST=./config/work-manifest.local.example.json \
 npm run setup:serve
 ```
 

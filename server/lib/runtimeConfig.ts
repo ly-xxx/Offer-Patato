@@ -15,7 +15,7 @@ import {
 export type SourceKind = 'guide' | 'question_bank' | 'work_root'
 export type SourceType = 'git' | 'local'
 
-export type OfferLoomSource = {
+export type OfferPotatoSource = {
   branch?: string
   id: string
   kind: SourceKind
@@ -24,25 +24,25 @@ export type OfferLoomSource = {
   url?: string
 }
 
-export type OfferLoomWorkSource = OfferLoomSource & {
+export type OfferPotatoWorkSource = OfferPotatoSource & {
   kind: 'work_root'
   manifestPath?: string
   supplementalRoots?: string[]
 }
 
-export type OfferLoomSourcesConfig = {
-  guides: OfferLoomSource[]
-  myWork: OfferLoomWorkSource
-  questionBanks: OfferLoomSource[]
+export type OfferPotatoSourcesConfig = {
+  guides: OfferPotatoSource[]
+  myWork: OfferPotatoWorkSource
+  questionBanks: OfferPotatoSource[]
 }
 
 export type SourcesSettingsSnapshot = {
   autoDetectedMyWorkPath: string | null
-  config: OfferLoomSourcesConfig
-  defaultConfig: OfferLoomSourcesConfig
+  config: OfferPotatoSourcesConfig
+  defaultConfig: OfferPotatoSourcesConfig
   discoveredSources: {
-    guides: OfferLoomSource[]
-    questionBanks: OfferLoomSource[]
+    guides: OfferPotatoSource[]
+    questionBanks: OfferPotatoSource[]
   }
   initialized: boolean
   paths: {
@@ -56,12 +56,12 @@ const EMPTY_MANIFEST = { projects: [] }
 export async function readSourcesSettingsSnapshot(): Promise<SourcesSettingsSnapshot> {
   const discoveredSources = await discoverLocalSources()
   const defaultConfig = mergeWithDiscoveredSources(
-    normalizeSourcesConfig(await readJson<OfferLoomSourcesConfig>(DEFAULT_SOURCES_CONFIG_PATH)),
+    normalizeSourcesConfig(await readJson<OfferPotatoSourcesConfig>(DEFAULT_SOURCES_CONFIG_PATH)),
     discoveredSources
   )
   const initialized = await fileExists(RUNTIME_SOURCES_CONFIG_PATH)
   const configured = initialized
-    ? normalizeSourcesConfig(await readJson<OfferLoomSourcesConfig>(RUNTIME_SOURCES_CONFIG_PATH))
+    ? normalizeSourcesConfig(await readJson<OfferPotatoSourcesConfig>(RUNTIME_SOURCES_CONFIG_PATH))
     : defaultConfig
   const baseConfig = mergeWithDiscoveredSources(configured, discoveredSources)
   const autoDetectedMyWorkPath = await detectAutoMyWorkPath(baseConfig)
@@ -88,7 +88,7 @@ export async function readSourcesSettingsSnapshot(): Promise<SourcesSettingsSnap
   }
 }
 
-export async function saveRuntimeSourcesConfig(input: OfferLoomSourcesConfig) {
+export async function saveRuntimeSourcesConfig(input: OfferPotatoSourcesConfig) {
   const normalized = normalizeSourcesConfig(input)
   validateSourcesConfig(normalized)
 
@@ -120,7 +120,7 @@ async function discoverLocalSources() {
   }
 }
 
-function normalizeSourcesConfig(input: OfferLoomSourcesConfig | null | undefined): OfferLoomSourcesConfig {
+function normalizeSourcesConfig(input: OfferPotatoSourcesConfig | null | undefined): OfferPotatoSourcesConfig {
   const guides = Array.isArray(input?.guides)
     ? input.guides.map((item, index) => normalizeSource(item, 'guide', `guide-${index + 1}`))
     : []
@@ -137,8 +137,8 @@ function normalizeSourcesConfig(input: OfferLoomSourcesConfig | null | undefined
 }
 
 function mergeWithDiscoveredSources(
-  config: OfferLoomSourcesConfig,
-  discovered: { guides: OfferLoomSource[]; questionBanks: OfferLoomSource[] }
+  config: OfferPotatoSourcesConfig,
+  discovered: { guides: OfferPotatoSource[]; questionBanks: OfferPotatoSource[] }
 ) {
   return {
     ...config,
@@ -147,7 +147,7 @@ function mergeWithDiscoveredSources(
   }
 }
 
-function normalizeSource(input: Partial<OfferLoomSource> | null | undefined, kind: SourceKind, fallbackId: string): OfferLoomSource {
+function normalizeSource(input: Partial<OfferPotatoSource> | null | undefined, kind: SourceKind, fallbackId: string): OfferPotatoSource {
   const type = input?.type === 'git' ? 'git' : 'local'
   const id = sanitizeId(input?.id || inferSourceId(input) || fallbackId)
   return {
@@ -160,8 +160,8 @@ function normalizeSource(input: Partial<OfferLoomSource> | null | undefined, kin
   }
 }
 
-function normalizeWorkSource(input: Partial<OfferLoomWorkSource> | null | undefined): OfferLoomWorkSource {
-  const normalized = normalizeSource(input as Partial<OfferLoomSource>, 'work_root', 'candidate-workspace')
+function normalizeWorkSource(input: Partial<OfferPotatoWorkSource> | null | undefined): OfferPotatoWorkSource {
+  const normalized = normalizeSource(input as Partial<OfferPotatoSource>, 'work_root', 'candidate-workspace')
   return {
     ...normalized,
     kind: 'work_root',
@@ -172,7 +172,7 @@ function normalizeWorkSource(input: Partial<OfferLoomWorkSource> | null | undefi
   }
 }
 
-function validateSourcesConfig(config: OfferLoomSourcesConfig) {
+function validateSourcesConfig(config: OfferPotatoSourcesConfig) {
   const totalSources = config.guides.length + config.questionBanks.length + 1
   if (totalSources <= 0) {
     throw new Error('至少需要保留一类数据源')
@@ -203,7 +203,7 @@ function validateSourcesConfig(config: OfferLoomSourcesConfig) {
   }
 }
 
-async function detectAutoMyWorkPath(config: OfferLoomSourcesConfig) {
+async function detectAutoMyWorkPath(config: OfferPotatoSourcesConfig) {
   if (config.myWork.type !== 'local') {
     return null
   }
@@ -255,7 +255,7 @@ async function discoverSourceDirs(rootPath: string, kind: SourceKind) {
     .sort((left, right) => left.id.localeCompare(right.id, 'en'))
 }
 
-function mergeSourceList(explicit: OfferLoomSource[], discovered: OfferLoomSource[]) {
+function mergeSourceList(explicit: OfferPotatoSource[], discovered: OfferPotatoSource[]) {
   const merged = [...explicit]
   const seen = new Set(explicit.map((source) => sourceMergeKey(source)))
   const seenIds = new Set(explicit.map((source) => source.id))
@@ -273,7 +273,7 @@ function mergeSourceList(explicit: OfferLoomSource[], discovered: OfferLoomSourc
   return merged
 }
 
-function sourceMergeKey(source: OfferLoomSource) {
+function sourceMergeKey(source: OfferPotatoSource) {
   return [
     source.id,
     source.type,
@@ -299,7 +299,7 @@ function cleanOptionalString(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
 }
 
-function inferSourceId(input: Partial<OfferLoomSource> | null | undefined) {
+function inferSourceId(input: Partial<OfferPotatoSource> | null | undefined) {
   return cleanOptionalString(input?.id)
     ?? cleanOptionalString(input?.url?.split('/').pop()?.replace(/\.git$/i, ''))
     ?? cleanOptionalString(input?.path?.split('/').pop())

@@ -111,7 +111,7 @@ async function main() {
         originalText: question.text,
         translatedText: readTranslatedText(question.metadataJson)
       }, context)
-      const outputFile = path.join(os.tmpdir(), `offerloom-${question.id}.json`)
+      const outputFile = path.join(os.tmpdir(), `offerpotato-${question.id}.json`)
 
       try {
         const lastMessage = await runCodex(prompt, outputFile, model, reasoningEffort)

@@ -1,8 +1,8 @@
-# OfferLoom
+# OfferPotato
 
 [中文 README](./README.md)
 
-OfferLoom is a local-first interview-preparation workspace that applies one indexing, retrieval, and generation pipeline to three classes of input:
+OfferPotato is a local-first interview-preparation workspace that applies one indexing, retrieval, and generation pipeline to three classes of input:
 
 - structured study guides
 - interview question banks
@@ -13,7 +13,7 @@ The system is built around two principles:
 - preserve study order by treating the guide as the primary reading surface
 - keep answer generation evidence-aware by introducing project experience only when `mywork` contains sufficiently relevant support
 
-OfferLoom is not limited to LLM interviews. The same workflow can be applied to any domain as long as you can provide study materials, interview questions, and candidate work materials for that domain.
+OfferPotato is not limited to LLM interviews. The same workflow can be applied to any domain as long as you can provide study materials, interview questions, and candidate work materials for that domain.
 
 ## Main capabilities
 
@@ -129,7 +129,7 @@ If you do not want the default sources, the Settings panel can switch them to:
 
 ## Automatic source discovery
 
-OfferLoom automatically discovers sources under:
+OfferPotato automatically discovers sources under:
 
 ```text
 sources/
@@ -148,7 +148,7 @@ The Settings UI also supports manual registration for:
 
 ## How `mywork` is handled
 
-OfferLoom scans `mywork` conservatively:
+OfferPotato scans `mywork` conservatively:
 
 - it first checks whether a directory forms a credible project
 - it stops early for clearly empty or structurally mismatched directories

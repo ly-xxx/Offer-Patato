@@ -5,7 +5,7 @@
       "paths": [
         "../replace-with-your-study/project-name"
       ],
-      "notes": "Optional supplemental path. OfferLoom only drills deeper when the directory looks like a real project."
+      "notes": "Optional supplemental path. OfferPotato only drills deeper when the directory looks like a real project."
     }
   ]
 }

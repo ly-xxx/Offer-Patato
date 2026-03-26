@@ -557,7 +557,7 @@ function fillFallbackFacts(
     if (fallback) {
       facts.push({
         label: '你的角色',
-        sourceLabel: 'OfferLoom 自动提示',
+        sourceLabel: 'OfferPotato 自动提示',
         value: fallback
       })
     }

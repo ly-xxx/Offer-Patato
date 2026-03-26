@@ -1,6 +1,6 @@
 # Sources Convention
 
-OfferLoom 会自动扫描下面两个目录，并把它们加入可索引来源：
+OfferPotato 会自动扫描下面两个目录，并把它们加入可索引来源：
 
 ```text
 sources/

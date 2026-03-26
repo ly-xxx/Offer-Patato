@@ -6,7 +6,7 @@ import path from 'node:path'
 import type { WebSocket } from 'ws'
 
 import { CONSOLE_SCHEMA_PATH, GENERATED_DIR, INTERVIEWER_SCHEMA_PATH, ROOT_DIR, SCHEMA_PATH, SKILLS_DIR } from './constants.js'
-import type { OfferLoomDb } from './db.js'
+import type { OfferPotatoDb } from './db.js'
 import { readLiveContent, trimExcerpt } from './text.js'
 
 type ReasoningEffort = 'low' | 'medium' | 'high' | 'xhigh'
@@ -150,11 +150,11 @@ type ConsoleProjectContext = {
 }
 
 export class AnswerJobManager {
-  private readonly db: OfferLoomDb
+  private readonly db: OfferPotatoDb
   private readonly jobs = new Map<string, JobStatus>()
   private readonly running = new Map<string, ChildProcessWithoutNullStreams>()
 
-  constructor(db: OfferLoomDb) {
+  constructor(db: OfferPotatoDb) {
     this.db = db
   }
 
@@ -272,7 +272,7 @@ export class AnswerJobManager {
         ? options.promptOverride.trim()
         : buildPrompt(skillTexts, question, workDocs, fallbackWorkDocs, selectedDocs)
       job.promptPreview = prompt
-      const outputFile = path.join(os.tmpdir(), `offerloom-live-${job.id}.json`)
+      const outputFile = path.join(os.tmpdir(), `offerpotato-live-${job.id}.json`)
       job.stage = 'running_codex'
       job.summary = 'Codex 正在生成个性化答案'
       const raw = await runCodexExec({
@@ -344,11 +344,11 @@ export class AnswerJobManager {
 }
 
 export class ManagedCodexConsoleManager {
-  private readonly db: OfferLoomDb
+  private readonly db: OfferPotatoDb
   private readonly jobs = new Map<string, ConsoleJobStatus>()
   private readonly running = new Map<string, ChildProcessWithoutNullStreams>()
 
-  constructor(db: OfferLoomDb) {
+  constructor(db: OfferPotatoDb) {
     this.db = db
   }
 
@@ -476,7 +476,7 @@ export class ManagedCodexConsoleManager {
         })
       job.promptPreview = prompt
 
-      const outputFile = path.join(os.tmpdir(), `offerloom-console-${job.id}.json`)
+      const outputFile = path.join(os.tmpdir(), `offerpotato-console-${job.id}.json`)
       job.stage = 'running_codex'
       job.summary = 'Codex 正在处理中'
       const raw = await runCodexExec({
@@ -517,11 +517,11 @@ export class ManagedCodexConsoleManager {
 }
 
 export class InterviewerModeManager {
-  private readonly db: OfferLoomDb
+  private readonly db: OfferPotatoDb
   private readonly jobs = new Map<string, InterviewerJobStatus>()
   private readonly running = new Map<string, ChildProcessWithoutNullStreams>()
 
-  constructor(db: OfferLoomDb) {
+  constructor(db: OfferPotatoDb) {
     this.db = db
   }
 
@@ -646,7 +646,7 @@ export class InterviewerModeManager {
         })
       job.promptPreview = prompt
 
-      const outputFile = path.join(os.tmpdir(), `offerloom-interviewer-${job.id}.json`)
+      const outputFile = path.join(os.tmpdir(), `offerpotato-interviewer-${job.id}.json`)
       job.stage = 'running_codex'
       job.summary = options.candidateAnswer?.trim()
         ? '面试官正在继续深挖'
@@ -689,10 +689,10 @@ export class InterviewerModeManager {
 
 function buildPrompt(
   skillText: string,
-  question: NonNullable<ReturnType<OfferLoomDb['getQuestion']>>,
-  workDocs: ReturnType<OfferLoomDb['getDocumentsByIds']>,
-  fallbackWorkDocs: ReturnType<OfferLoomDb['getDocumentsByIds']>,
-  selectedDocs: ReturnType<OfferLoomDb['getDocumentsByIds']>
+  question: NonNullable<ReturnType<OfferPotatoDb['getQuestion']>>,
+  workDocs: ReturnType<OfferPotatoDb['getDocumentsByIds']>,
+  fallbackWorkDocs: ReturnType<OfferPotatoDb['getDocumentsByIds']>,
+  selectedDocs: ReturnType<OfferPotatoDb['getDocumentsByIds']>
 ) {
   const guideMatches = question.guideMatches as Array<{
     content: string
@@ -887,7 +887,7 @@ function buildInterviewerPrompt(
     candidateAnswer: string
     conversation: ConsoleConversationTurn[]
     fallbackWorkDocs: PromptDocument[]
-    question: NonNullable<ReturnType<OfferLoomDb['getQuestion']>>
+    question: NonNullable<ReturnType<OfferPotatoDb['getQuestion']>>
     seedFollowUp: string
     workDocs: PromptDocument[]
   }
@@ -1031,7 +1031,7 @@ ${latestCandidateBlock}
 Return JSON only. It must match the provided schema exactly.`
 }
 
-async function hydrateDocuments(documents: ReturnType<OfferLoomDb['getDocumentsByIds']>) {
+async function hydrateDocuments(documents: ReturnType<OfferPotatoDb['getDocumentsByIds']>) {
   return Promise.all(documents.map(async (document) => ({
     ...document,
     content: await readLiveContent(document.watchPath ?? '', document.content)

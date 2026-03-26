@@ -1,6 +1,6 @@
 # Release Guide
 
-这是 OfferLoom 发布到 GitHub 前的检查单。
+这是 OfferPotato 发布到 GitHub 前的检查单。
 
 ## 必须保留的公开内容
 
@@ -16,7 +16,7 @@
 
 - `mywork/` 下你的真实项目材料
 - `config/*.runtime.json`
-- `data/offerloom.db*`
+- `data/offerpotato.db*`
 - `data/generated/*` 里的生成答案
 - `data/models/*`
 - `data/sources/*` 里的临时镜像

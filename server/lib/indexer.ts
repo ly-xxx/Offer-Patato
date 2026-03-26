@@ -3,13 +3,15 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import { ROOT_DIR, SCRIPTS_DIR } from './constants.js'
-import type { OfferLoomDb } from './db.js'
+import type { OfferPotatoDb } from './db.js'
 import {
   ensureRuntimeManifest,
   readSourcesSettingsSnapshot,
   saveRuntimeSourcesConfig,
-  type OfferLoomSourcesConfig
+  type OfferPotatoSourcesConfig
 } from './runtimeConfig.js'
+
+const INDEX_PROGRESS_PREFIXES = ['[OfferPotatoProgress]', '[OfferLoomProgress]']
 
 type IndexJobStage =
   | 'queued'
@@ -38,15 +40,15 @@ export type IndexJobStatus = {
 }
 
 type StartIndexOptions = {
-  config?: OfferLoomSourcesConfig
+  config?: OfferPotatoSourcesConfig
 }
 
 export class IndexJobManager {
-  private readonly db: OfferLoomDb
+  private readonly db: OfferPotatoDb
   private readonly jobs = new Map<string, IndexJobStatus>()
   private readonly running = new Map<string, ChildProcess>()
 
-  constructor(db: OfferLoomDb) {
+  constructor(db: OfferPotatoDb) {
     this.db = db
   }
 
@@ -154,6 +156,7 @@ export class IndexJobManager {
       await fs.rm(tempDbPath, { force: true })
       await this.runNodeScript(jobId, 'build-db.mjs', {
         env: {
+          OFFERPOTATO_DB_PATH: tempDbPath,
           OFFERLOOM_DB_PATH: tempDbPath
         },
         onLine: (line) => {
@@ -283,7 +286,7 @@ export class IndexJobManager {
   }
 
   private pushLog(job: IndexJobStatus, line: string) {
-    const cleaned = line.replace(/^\[OfferLoomProgress\]\s*/, '').trim()
+    const cleaned = stripIndexProgressPrefix(line).trim()
     if (!cleaned) {
       return
     }
@@ -292,11 +295,12 @@ export class IndexJobManager {
 }
 
 function parseProgressEvent(line: string) {
-  if (!line.startsWith('[OfferLoomProgress]')) {
+  const prefix = INDEX_PROGRESS_PREFIXES.find((value) => line.startsWith(value))
+  if (!prefix) {
     return null
   }
   try {
-    const parsed = JSON.parse(line.replace(/^\[OfferLoomProgress\]\s*/, '')) as {
+    const parsed = JSON.parse(line.slice(prefix.length).trim()) as {
       detail?: string
       progress?: number
       stage?: string
@@ -309,6 +313,11 @@ function parseProgressEvent(line: string) {
   } catch {
     return null
   }
+}
+
+function stripIndexProgressPrefix(line: string) {
+  const prefix = INDEX_PROGRESS_PREFIXES.find((value) => line.startsWith(value))
+  return prefix ? line.slice(prefix.length) : line
 }
 
 async function fileExists(filePath: string) {

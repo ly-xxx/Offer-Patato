@@ -12,11 +12,11 @@ import { AnswerJobManager, InterviewerModeManager, ManagedCodexConsoleManager, a
 import { IndexJobManager } from './lib/indexer.js'
 import { saveManualInterviewImport } from './lib/interviewImports.js'
 import { PORT, WEB_DIST_DIR } from './lib/constants.js'
-import { OfferLoomDb } from './lib/db.js'
-import { readSourcesSettingsSnapshot, saveRuntimeSourcesConfig, type OfferLoomSourcesConfig } from './lib/runtimeConfig.js'
+import { OfferPotatoDb } from './lib/db.js'
+import { readSourcesSettingsSnapshot, saveRuntimeSourcesConfig, type OfferPotatoSourcesConfig } from './lib/runtimeConfig.js'
 
 const app = express()
-const db = new OfferLoomDb()
+const db = new OfferPotatoDb()
 const jobManager = new AnswerJobManager(db)
 const consoleManager = new ManagedCodexConsoleManager(db)
 const interviewerManager = new InterviewerModeManager(db)
@@ -39,7 +39,7 @@ app.get('/api/settings/sources', async (_request, response) => {
 })
 
 app.post('/api/settings/sources', async (request, response) => {
-  const body = request.body as { config?: OfferLoomSourcesConfig }
+  const body = request.body as { config?: OfferPotatoSourcesConfig }
   if (!body.config) {
     response.status(400).json({ error: 'config is required' })
     return
@@ -173,7 +173,7 @@ app.get('/api/interviewer/jobs/:jobId', (request, response) => {
 })
 
 app.post('/api/index/jobs', async (request, response) => {
-  const body = request.body as { config?: OfferLoomSourcesConfig }
+  const body = request.body as { config?: OfferPotatoSourcesConfig }
   const job = await indexManager.start({
     config: body.config
   })
@@ -385,7 +385,7 @@ if (fs.existsSync(WEB_DIST_DIR)) {
     response.type('html').send(`
       <html>
         <body style="font-family: sans-serif; padding: 32px;">
-          <h1>OfferLoom backend is running</h1>
+          <h1>OfferPotato backend is running</h1>
           <p>The frontend build was not found yet. Run <code>npm run build</code> in the project root.</p>
         </body>
       </html>
@@ -453,7 +453,7 @@ server.on('upgrade', (request, socket, head) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   const urls = collectAccessUrls(PORT)
-  console.log('OfferLoom is ready:')
+  console.log('OfferPotato is ready:')
   urls.forEach((url) => {
     console.log(`  - ${url}`)
   })
@@ -509,9 +509,9 @@ function buildProxyWarning(urls: string[]) {
     .join(',')
 
   return [
-    '[OfferLoom] Detected proxy environment variables.',
-    '[OfferLoom] If localhost or LAN access shows 502 / Bad Gateway, add these hosts to NO_PROXY or your browser bypass list:',
-    `[OfferLoom] ${hostHints}`
+    '[OfferPotato] Detected proxy environment variables.',
+    '[OfferPotato] If localhost or LAN access shows 502 / Bad Gateway, add these hosts to NO_PROXY or your browser bypass list:',
+    `[OfferPotato] ${hostHints}`
   ].join('\n')
 }
 

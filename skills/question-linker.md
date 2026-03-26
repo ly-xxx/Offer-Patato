@@ -1,4 +1,4 @@
-# OfferLoom Skill: Question-to-Guide Linker
+# OfferPotato Skill: Question-to-Guide Linker
 
 Given an interview question and ranked guide sections, identify the most useful knowledge anchors.
 

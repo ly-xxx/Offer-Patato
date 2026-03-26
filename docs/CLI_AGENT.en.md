@@ -2,7 +2,7 @@
 
 [中文版本](../docs/CLI_AGENT.md)
 
-OfferLoom keeps the embedded Codex terminal as a first-class product feature.
+OfferPotato keeps the embedded Codex terminal as a first-class product feature.
 
 ## What it does
 
@@ -14,7 +14,7 @@ OfferLoom keeps the embedded Codex terminal as a first-class product feature.
 ## Requirements
 
 - `codex` must already be installed on the host machine
-- the host running OfferLoom must allow local process execution
+- the host running OfferPotato must allow local process execution
 - users should understand that terminal commands run on the local machine
 
 ## Why this is documented separately

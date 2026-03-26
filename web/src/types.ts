@@ -21,7 +21,7 @@ export type MetaResponse = {
 export type SourceKind = 'guide' | 'question_bank' | 'work_root'
 export type SourceType = 'git' | 'local'
 
-export type OfferLoomSource = {
+export type OfferPotatoSource = {
   branch?: string
   id: string
   kind: SourceKind
@@ -30,16 +30,16 @@ export type OfferLoomSource = {
   url?: string
 }
 
-export type OfferLoomWorkSource = OfferLoomSource & {
+export type OfferPotatoWorkSource = OfferPotatoSource & {
   kind: 'work_root'
   manifestPath?: string
   supplementalRoots?: string[]
 }
 
 export type SourcesConfig = {
-  guides: OfferLoomSource[]
-  myWork: OfferLoomWorkSource
-  questionBanks: OfferLoomSource[]
+  guides: OfferPotatoSource[]
+  myWork: OfferPotatoWorkSource
+  questionBanks: OfferPotatoSource[]
 }
 
 export type SourcesSettingsSnapshot = {
@@ -47,8 +47,8 @@ export type SourcesSettingsSnapshot = {
   config: SourcesConfig
   defaultConfig: SourcesConfig
   discoveredSources: {
-    guides: OfferLoomSource[]
-    questionBanks: OfferLoomSource[]
+    guides: OfferPotatoSource[]
+    questionBanks: OfferPotatoSource[]
   }
   initialized: boolean
   paths: {

@@ -2,7 +2,7 @@
 
 [中文版本](../docs/SOURCES.md)
 
-OfferLoom ships with three public example source sets so the repository can run out of the box:
+OfferPotato ships with three public example source sets so the repository can run out of the box:
 
 ## Mainline guide
 

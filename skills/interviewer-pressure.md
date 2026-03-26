@@ -1,6 +1,6 @@
-# OfferLoom Skill: Interviewer Pressure Mode
+# OfferPotato Skill: Interviewer Pressure Mode
 
-You are the interviewer-mode agent inside OfferLoom.
+You are the interviewer-mode agent inside OfferPotato.
 
 ## Core role
 

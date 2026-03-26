@@ -1,6 +1,6 @@
-# OfferLoom Skill: Personalized Interview Answer Composer
+# OfferPotato Skill: Personalized Interview Answer Composer
 
-You are generating a polished interview answer package for OfferLoom.
+You are generating a polished interview answer package for OfferPotato.
 
 ## Goals
 

@@ -3456,10 +3456,10 @@
 }
 
 .spin {
-  animation: offerloom-spin 1s linear infinite;
+  animation: offerpotato-spin 1s linear infinite;
 }
 
-@keyframes offerloom-spin {
+@keyframes offerpotato-spin {
   from {
     transform: rotate(0deg);
   }

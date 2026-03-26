@@ -2,14 +2,14 @@
 
 [中文版本](../docs/CONFIGURATION.md)
 
-OfferLoom source configuration has two layers:
+OfferPotato source configuration has two layers:
 
 - public default config stored in the repository
 - private runtime config used on your own machine
 
 ## Default config
 
-By default, OfferLoom reads:
+By default, OfferPotato reads:
 
 - `config/sources.json`
 - `config/work-manifest.json`
@@ -64,8 +64,8 @@ Example:
 Do not edit the tracked default config directly. Prefer local overrides:
 
 ```bash
-OFFERLOOM_SOURCES_CONFIG=./config/sources.local.example.json \
-OFFERLOOM_WORK_MANIFEST=./config/work-manifest.local.example.json \
+OFFERPOTATO_SOURCES_CONFIG=./config/sources.local.example.json \
+OFFERPOTATO_WORK_MANIFEST=./config/work-manifest.local.example.json \
 npm run setup:serve
 ```
 
@@ -92,4 +92,4 @@ Interview imports go through canonical dedup during indexing:
 - they are normalized into a shared fingerprint
 - duplicate questions keep a single primary record
 
-After adding a new question bank, rebuild the index and OfferLoom will import the new questions and deduplicate them automatically.
+After adding a new question bank, rebuild the index and OfferPotato will import the new questions and deduplicate them automatically.
