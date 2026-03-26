@@ -3916,6 +3916,25 @@
     width: min(var(--sidebar-width), calc(100vw - 24px));
     max-height: none;
     z-index: 15;
+    overflow: hidden;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .study-layout.is-mobile .sidebar-card {
+    overflow: hidden;
+  }
+
+  .study-layout.is-mobile .sidebar-shell {
+    min-height: 100%;
+  }
+
+  .study-layout.is-mobile .sidebar-scroll {
+    flex: 1;
+    min-height: 0;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   .doc-paper {

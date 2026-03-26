@@ -6,7 +6,6 @@ import {
   type ChangeEvent,
   type DragEvent
 } from 'react'
-import { AnimatePresence } from 'framer-motion'
 import {
   Building2,
   CalendarDays,
@@ -162,19 +161,17 @@ export function InterviewImportModal(props: Props) {
   }
 
   return (
-    <AnimatePresence initial={false}>
-      {props.open && (
-        <OverlayDrawer
-          icon={<ScanText size={18} />}
-          onClose={() => {
-            if (!props.busy) {
-              resetState()
-              props.onClose()
-            }
-          }}
-          open={props.open}
-          title="添加面经"
-        >
+    <OverlayDrawer
+      icon={<ScanText size={18} />}
+      onClose={() => {
+        if (!props.busy) {
+          resetState()
+          props.onClose()
+        }
+      }}
+      open={props.open}
+      title="添加面经"
+    >
           <div className="control-panel-body interview-import-body">
             <section className="control-card">
               <div className="control-card-head">
@@ -317,9 +314,7 @@ export function InterviewImportModal(props: Props) {
             </div>
             </section>
           </div>
-        </OverlayDrawer>
-      )}
-    </AnimatePresence>
+    </OverlayDrawer>
   )
 }
 

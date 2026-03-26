@@ -9,6 +9,7 @@ import {
   type CSSProperties,
   type MutableRefObject,
   type PointerEvent as ReactPointerEvent,
+  type RefObject,
   type ReactNode
 } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -162,6 +163,7 @@ const GUIDE_FALLBACK_SECTION_ANCHOR = 'chapter-question-bank'
 const DOCUMENT_SCROLL_VIEWPORT_OFFSET = 104
 const CODEX_DOCK_RESERVE_WIDTH = 492
 const MIN_DOC_STAGE_WIDTH_WITH_CODEX_DOCK = 980
+const DEFAULT_CODEX_DOCK_TOP = 136
 const DEFAULT_UI_STATE: WorkspaceUiState = {
   currentDocumentId: null,
   currentInterviewQuestionId: null,
@@ -323,12 +325,14 @@ function App() {
   const [workspaceUi, setWorkspaceUi] = useState<WorkspaceUiState>(() => readWorkspaceUiState())
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [isCodexDefaultDocked, setIsCodexDefaultDocked] = useState(true)
+  const [codexDockTop, setCodexDockTop] = useState(DEFAULT_CODEX_DOCK_TOP)
   const [expandedGuideKeys, setExpandedGuideKeys] = useState<string[]>([])
   const [expandedInterviewCategoryIds, setExpandedInterviewCategoryIds] = useState<string[]>([])
   const lastIndexJobStatusRef = useRef<string | null>(null)
 
   const sectionRefs = useRef(new Map<string, HTMLElement>())
   const guideArticleRefs = useRef(new Map<string, HTMLElement>())
+  const studyLayoutRef = useRef<HTMLDivElement | null>(null)
   const selectedDocumentIdRef = useRef<string | null>(null)
   const documentScrollStateRef = useRef<Record<string, number>>(readDocumentScrollState())
   const interviewScrollStateRef = useRef<Record<string, number>>(readInterviewScrollState())
@@ -368,6 +372,33 @@ function App() {
       setMobileSidebarOpen(false)
     }
   }, [isMobile])
+
+  useEffect(() => {
+    if (!isMobile || !mobileSidebarOpen || typeof document === 'undefined') {
+      return
+    }
+
+    const html = document.documentElement
+    const body = document.body
+    const previous = {
+      bodyOverflow: body.style.overflow,
+      bodyOverscrollBehavior: body.style.overscrollBehavior,
+      htmlOverflow: html.style.overflow,
+      htmlOverscrollBehavior: html.style.overscrollBehavior
+    }
+
+    body.style.overflow = 'hidden'
+    body.style.overscrollBehavior = 'none'
+    html.style.overflow = 'hidden'
+    html.style.overscrollBehavior = 'none'
+
+    return () => {
+      body.style.overflow = previous.bodyOverflow
+      body.style.overscrollBehavior = previous.bodyOverscrollBehavior
+      html.style.overflow = previous.htmlOverflow
+      html.style.overscrollBehavior = previous.htmlOverscrollBehavior
+    }
+  }, [isMobile, mobileSidebarOpen])
 
   const guideDocuments = useMemo(() => (
     documents.filter((item) => item.kind === 'guide')
@@ -448,6 +479,40 @@ function App() {
     ['--sidebar-live-width' as string]: `${liveSidebarWidth}px`,
     ['--codex-dock-reserve' as string]: shouldReserveCodexDockRail ? `${CODEX_DOCK_RESERVE_WIDTH}px` : '0px'
   }), [liveSidebarWidth, shouldReserveCodexDockRail, sidebarWidth])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    let frameId = 0
+    let observer: ResizeObserver | null = null
+
+    const updateDockTop = () => {
+      frameId = window.requestAnimationFrame(() => {
+        const nextTop = readDockTopFromLayout(studyLayoutRef)
+        setCodexDockTop((current) => Math.abs(current - nextTop) < 1 ? current : nextTop)
+      })
+    }
+
+    updateDockTop()
+
+    if (typeof ResizeObserver !== 'undefined' && studyLayoutRef.current) {
+      observer = new ResizeObserver(() => {
+        updateDockTop()
+      })
+      observer.observe(studyLayoutRef.current)
+    }
+
+    window.addEventListener('resize', updateDockTop)
+    return () => {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId)
+      }
+      observer?.disconnect()
+      window.removeEventListener('resize', updateDockTop)
+    }
+  }, [deferredSearch, effectiveSidebarOpen, isMobile, searchPreview, sidebarWidth, statusNote, workspaceUi.sidebarTab])
 
   const sidebarToggleStyle = useMemo(() => {
     if (isMobile) {
@@ -1381,6 +1446,7 @@ function App() {
 
     if (preferredDocumentId && preferredDocumentId !== selectedDocumentIdRef.current) {
       openDocument(preferredDocumentId, undefined, {
+        preserveMobileSidebar: true,
         pushHistory: false,
         tab: nextTab
       })
@@ -1462,7 +1528,7 @@ function App() {
   const openDocument = (
     documentId: string,
     nextFocus?: Omit<PendingFocus, 'documentId'>,
-    options?: { pushHistory?: boolean; tab?: SidebarTab }
+    options?: { preserveMobileSidebar?: boolean; pushHistory?: boolean; tab?: SidebarTab }
   ) => {
     const nextTab = options?.tab ?? (documents.find((item) => item.id === documentId)?.kind === 'work' ? 'mywork' : 'documents')
     const targetDocument = documents.find((item) => item.id === documentId) ?? null
@@ -1494,7 +1560,7 @@ function App() {
         sidebarTab: nextTab
       })
     }
-    if (isMobile) {
+    if (isMobile && !options?.preserveMobileSidebar) {
       setMobileSidebarOpen(false)
     }
   }
@@ -2054,6 +2120,7 @@ function App() {
       </AnimatePresence>
 
       <div
+        ref={studyLayoutRef}
         className={`study-layout ${effectiveSidebarOpen ? '' : 'sidebar-collapsed'} ${isMobile ? 'is-mobile' : ''} ${shouldReserveCodexDockRail ? 'has-codex-dock-rail' : ''}`}
         style={studyLayoutStyle}
       >
@@ -2218,6 +2285,7 @@ function App() {
       <FloatingCodexWindow
         autoReferenceCurrentDoc={autoReferenceCurrentDoc}
         currentDocument={activeDocument}
+        defaultDockTop={codexDockTop}
         documents={documents}
         model={model}
         models={meta?.models ?? ['gpt-5.4', 'gpt-5.2', 'gpt-5']}
@@ -3996,6 +4064,20 @@ function getDocumentScrollBaseTop(documentId: string) {
   }
 
   return Math.max(0, Math.round(node.getBoundingClientRect().top + window.scrollY - DOCUMENT_SCROLL_VIEWPORT_OFFSET))
+}
+
+function readDockTopFromLayout(layoutRef: RefObject<HTMLDivElement | null>) {
+  if (typeof window === 'undefined') {
+    return DEFAULT_CODEX_DOCK_TOP
+  }
+
+  const fallbackTop = clampNumber(DEFAULT_CODEX_DOCK_TOP, 92, Math.max(92, window.innerHeight - 180), DEFAULT_CODEX_DOCK_TOP)
+  const layoutRect = layoutRef.current?.getBoundingClientRect()
+  if (!layoutRect) {
+    return fallbackTop
+  }
+
+  return clampNumber(layoutRect.top + 2, 92, Math.max(92, window.innerHeight - 180), fallbackTop)
 }
 
 function buildWorkspaceCssVars(workspaceUi: WorkspaceUiState) {

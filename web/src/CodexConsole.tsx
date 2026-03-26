@@ -70,6 +70,7 @@ type ConsoleMessage =
 type Props = {
   autoReferenceCurrentDoc: boolean
   currentDocument: DocumentData | null
+  defaultDockTop?: number
   documents: DocumentListItem[]
   model: string
   models: string[]
@@ -97,6 +98,7 @@ export function FloatingCodexWindow(props: Props) {
   const [messages, setMessages] = useState<ConsoleMessage[]>([])
   const [runningJobId, setRunningJobId] = useState<string | null>(null)
   const [frame, setFrame] = useState<FloatFrame>(() => buildDefaultFloatFrame({
+    defaultDockTop: props.defaultDockTop,
     isCollapsed: false,
     isMobile: typeof window === 'undefined' ? false : window.matchMedia('(max-width: 980px)').matches
   }))
@@ -111,9 +113,10 @@ export function FloatingCodexWindow(props: Props) {
   const messageEndRef = useRef<HTMLDivElement | null>(null)
   const deferredReferenceQuery = useDeferredValue(referenceQuery.trim().toLowerCase())
   const defaultFrame = useMemo(() => buildDefaultFloatFrame({
+    defaultDockTop: props.defaultDockTop,
     isCollapsed,
     isMobile
-  }), [isCollapsed, isMobile])
+  }), [isCollapsed, isMobile, props.defaultDockTop])
 
   const selectedReferenceDocs = useMemo(() => {
     const byId = new Map(props.documents.map((item) => [item.id, item]))
@@ -837,6 +840,7 @@ function clampFrame(frame: FloatFrame, isCollapsed: boolean) {
 }
 
 function buildDefaultFloatFrame(props: {
+  defaultDockTop?: number
   isCollapsed: boolean
   isMobile: boolean
 }): FloatFrame {
@@ -865,7 +869,7 @@ function buildDefaultFloatFrame(props: {
   }
 
   const width = 432
-  const top = 184
+  const top = clamp(props.defaultDockTop ?? 136, 88, Math.max(88, window.innerHeight - 180))
   const expandedHeight = clamp(window.innerHeight - top - 18, 520, 1040)
   const height = props.isCollapsed ? 72 : expandedHeight
 
