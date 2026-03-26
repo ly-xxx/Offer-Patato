@@ -96,6 +96,7 @@ export type QuestionListItem = {
   role: string | null
   sourceId: string
   sourcePath: string
+  sourceSequence: number
   sourceTitle: string
   text: string
   translatedText: string | null

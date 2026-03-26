@@ -960,6 +960,9 @@ ${generated.work_story ?? 'N/A'}
 Knowledge Map:
 ${generated.knowledge_map?.map((item) => `- ${item.concept ?? 'concept'}: ${item.why_it_matters ?? ''}`).join('\n') || '- None'}
 
+Likely Follow-ups:
+${generated.follow_ups?.map((item) => `- ${item}`).join('\n') || '- None'}
+
 Full Answer:
 ${trimExcerpt(generated.full_answer_markdown ?? '', 3200)}`
     : 'No generated answer package is available yet.'
@@ -975,6 +978,8 @@ ${trimExcerpt(item.content, 1800)}`)
   const latestCandidateBlock = input.candidateAnswer.trim()
     ? input.candidateAnswer.trim()
     : 'No candidate answer yet. Start the interview round by asking the first sharp question.'
+
+  const candidateTurnCount = input.conversation.filter((item) => item.role === 'user').length + (input.candidateAnswer.trim() ? 1 : 0)
 
   return `${skillText}
 
@@ -1004,8 +1009,20 @@ ${fallbackWorkBlock}
 # Prepared Answer Package
 ${answerPackageBlock}
 
+# Interview Strategy Rules
+- First diagnose the latest candidate answer. Decide what is correct, what is vague, what is unsupported, and what sounds like overclaim.
+- Then choose exactly one primary drill axis for this round. Do not branch into multiple unrelated topics unless the candidate answer is clearly contradictory.
+- Good drill axes: mechanism, formula, tensor shape, latency bottleneck, memory bottleneck, metric choice, failure mode, boundary condition, project ownership, online indicator, ablation evidence.
+- If the candidate answer is decent, pivot to assumptions, edge cases, or implementation tradeoffs instead of repeating the same question.
+- If the candidate answer is weak, narrow the scope and ask for one concrete thing: a formula, a metric, a code path, a tensor shape, a latency number, or a failure case.
+- If the provided mywork evidence is weak, do not keep forcing project linkage. Stay on fundamentals.
+- Never answer for the candidate. Stay adversarial, concise, and professional.
+
 # Conversation So Far
 ${historyBlock}
+
+# Conversation Depth
+Candidate answered ${candidateTurnCount} time(s) in this session.
 
 # Latest Candidate Answer
 ${latestCandidateBlock}

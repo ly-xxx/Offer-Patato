@@ -59,6 +59,7 @@ export type QuestionListItem = {
   role: string | null
   sourceId: string
   sourcePath: string
+  sourceSequence: number
   sourceTitle: string
   text: string
   translatedText: string | null
@@ -194,6 +195,7 @@ export class OfferLoomDb {
         q.question_type AS questionType,
         q.difficulty,
         q.source_id AS sourceId,
+        q.rowid AS sourceSequence,
         d.title AS sourceTitle,
         d.rel_path AS sourceRelPath,
         COALESCE(SUM(CASE WHEN l.relation = 'question_to_section' THEN 1 ELSE 0 END), 0) AS guideLinkCount,

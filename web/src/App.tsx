@@ -166,6 +166,7 @@ type JobToast = {
   status: 'cancelled' | 'failed' | 'ready'
   title: string
 }
+type AnswerGenerationEffort = 'low' | 'high' | 'xhigh'
 type CodexFloatFrame = {
   height: number
   width: number
@@ -184,11 +185,22 @@ type CodexWindowLayoutState = {
   isDefaultDocked: boolean
   isOpen: boolean
 }
+type AnswerJobLaunchContext = {
+  anchor?: string | null
+  documentId?: string | null
+  jobId: string
+  kind: 'document' | 'interview'
+  knowledgeAnchor?: string | null
+  questionId: string
+  startedAt: string
+}
 
 const UI_STATE_STORAGE_KEY = 'offerloom.workspace-ui.v1'
 const DOC_SCROLL_STORAGE_KEY = 'offerloom.doc-scroll.v1'
 const INTERVIEW_SCROLL_STORAGE_KEY = 'offerloom.interview-scroll.v1'
 const VIEW_STATE_STORAGE_KEY = 'offerloom.view-state.v1'
+const ANSWER_EFFORT_STORAGE_KEY = 'offerloom.answer-effort.v1'
+const ANSWER_JOB_CONTEXT_STORAGE_KEY = 'offerloom.answer-job-context.v1'
 const GUIDE_FALLBACK_SECTION_ANCHOR = 'chapter-question-bank'
 const DOCUMENT_SCROLL_VIEWPORT_OFFSET = 104
 const CODEX_FLOAT_DEFAULT_WIDTH = 432
@@ -337,7 +349,7 @@ function App() {
   const [statusNote, setStatusNote] = useState('正在载入文档与题库')
   const [model, setModel] = useState('gpt-5.4')
   const [reasoningEffort, setReasoningEffort] = useState<ReasoningEffort>('high')
-  const [answerEffort, setAnswerEffort] = useState<'low' | 'high' | 'xhigh'>('high')
+  const [answerEffort, setAnswerEffort] = useState<AnswerGenerationEffort>(() => readStoredAnswerEffort())
   const [interviewerEffort, setInterviewerEffort] = useState<ReasoningEffort>('high')
   const [autoReferenceCurrentDoc, setAutoReferenceCurrentDoc] = useState(true)
   const [selectedReferenceIds, setSelectedReferenceIds] = useState<string[]>([])
@@ -373,6 +385,7 @@ function App() {
     isDefaultDocked: true,
     isOpen: true
   })
+  const [answerJobContexts, setAnswerJobContexts] = useState<Record<string, AnswerJobLaunchContext>>(() => readAnswerJobContexts())
   const [expandedGuideKeys, setExpandedGuideKeys] = useState<string[]>([])
   const [expandedInterviewCategoryIds, setExpandedInterviewCategoryIds] = useState<string[]>([])
   const lastIndexJobStatusRef = useRef<string | null>(null)
@@ -403,6 +416,14 @@ function App() {
   useEffect(() => {
     writeWorkspaceUiState(workspaceUi)
   }, [workspaceUi])
+
+  useEffect(() => {
+    writeStoredAnswerEffort(answerEffort)
+  }, [answerEffort])
+
+  useEffect(() => {
+    writeAnswerJobContexts(answerJobContexts)
+  }, [answerJobContexts])
 
   useEffect(() => {
     viewStateRef.current = {
@@ -1870,6 +1891,7 @@ function App() {
     setStatusNote('Codex 正在围绕当前知识点生成个性化答案')
 
     try {
+      const launchContext = captureAnswerJobLaunchContext(questionId)
       const detail = questionCache[questionId] ?? await fetchQuestionDetail(questionId)
       setQuestionCache((current) => ({
         ...current,
@@ -1891,6 +1913,7 @@ function App() {
         [questionId]: startedJob
       }))
       setAgentJobs((current) => [startedJob, ...current.filter((item) => item.id !== startedJob.id)])
+      rememberAnswerJobContext(startedJob.id, questionId, launchContext)
 
       let latestJob = startedJob
       while (latestJob.status === 'queued' || latestJob.status === 'running') {
@@ -1988,6 +2011,78 @@ function App() {
     setUnreadCompletedJobIds((current) => current.filter((id) => id !== jobId))
   })
 
+  const captureAnswerJobLaunchContext = useEffectEvent((questionId: string) => {
+    if (workspaceUi.sidebarTab === 'interviews') {
+      return {
+        kind: 'interview' as const,
+        questionId
+      }
+    }
+
+    if (!selectedDocumentIdRef.current) {
+      return null
+    }
+
+    const sectionAnchor = selectedKnowledgeSection?.anchor ?? knowledgeAnchor ?? activeSectionAnchor ?? null
+    return {
+      anchor: sectionAnchor,
+      documentId: selectedDocumentIdRef.current,
+      kind: 'document' as const,
+      knowledgeAnchor: sectionAnchor,
+      questionId
+    }
+  })
+
+  const rememberAnswerJobContext = useEffectEvent((
+    jobId: string,
+    questionId: string,
+    baseContext?: Omit<AnswerJobLaunchContext, 'jobId' | 'startedAt'> | null
+  ) => {
+    const context = baseContext ?? captureAnswerJobLaunchContext(questionId)
+    if (!context) {
+      return
+    }
+
+    setAnswerJobContexts((current) => ({
+      ...current,
+      [jobId]: {
+        ...context,
+        jobId,
+        startedAt: new Date().toISOString()
+      }
+    }))
+  })
+
+  const activateAgentJob = useEffectEvent((jobId: string) => {
+    openAgentJob(jobId)
+    const job = agentJobs.find((item) => item.id === jobId)
+    if (!job) {
+      return
+    }
+
+    if (job.kind === 'answer') {
+      const context = answerJobContexts[jobId]
+      setJobsOpen(false)
+      if (context?.kind === 'document' && context.documentId) {
+        openDocument(context.documentId, {
+          anchor: context.anchor ?? undefined,
+          knowledgeAnchor: context.knowledgeAnchor ?? undefined
+        }, {
+          pushHistory: true,
+          tab: 'documents'
+        })
+        return
+      }
+      openInterviewQuestion(job.questionId)
+      return
+    }
+
+    if (job.kind === 'interviewer') {
+      setJobsOpen(false)
+      openInterviewQuestion(job.questionId)
+    }
+  })
+
   const cancelSelectedAgentJob = useEffectEvent(async (jobId: string) => {
     try {
       const job = await cancelAgentJob(jobId)
@@ -2002,6 +2097,7 @@ function App() {
 
   const rerunSelectedAgentJob = useEffectEvent(async (jobId: string, prompt: string) => {
     try {
+      const previousContext = answerJobContexts[jobId]
       const job = await rerunAgentJob(jobId, prompt)
       setAgentJobs((current) => [job, ...current.filter((item) => item.id !== job.id)])
       if (job.kind === 'answer') {
@@ -2009,6 +2105,7 @@ function App() {
           ...current,
           [job.questionId]: job
         }))
+        rememberAnswerJobContext(job.id, job.questionId, previousContext ?? null)
       }
       setSelectedAgentJobId(job.id)
       setStatusNote('已基于当前 prompt 重新提交任务')
@@ -2594,7 +2691,7 @@ function App() {
         onClose={() => setJobsOpen(false)}
         onPromptDraftChange={setAgentPromptDraft}
         onRerun={(jobId, prompt) => void rerunSelectedAgentJob(jobId, prompt)}
-        onSelectJob={(jobId) => void openAgentJob(jobId)}
+        onSelectJob={(jobId) => void activateAgentJob(jobId)}
         open={jobsOpen}
         promptDraft={agentPromptDraft}
         selectedJob={selectedAgentJob}
@@ -3808,25 +3905,23 @@ function buildInterviewCategoryGroups(questions: QuestionListItem[]): InterviewC
     .map((group) => ({
       ...group,
       questions: [...group.questions].sort((left, right) => (
-        scoreQuestionGuidePresence(right) - scoreQuestionGuidePresence(left)
-        || right.guideLinkCount - left.guideLinkCount
-        || right.guideFallbackCount - left.guideFallbackCount
-        || Number(right.generatedStatus === 'ready') - Number(left.generatedStatus === 'ready')
-        || right.generatedCount - left.generatedCount
+        compareInterviewQuestionSourceOrder(left, right)
         || left.displayText.localeCompare(right.displayText, 'zh-Hans-CN')
       ))
     }))
     .sort((left, right) => left.categoryOrder - right.categoryOrder || left.categoryLabel.localeCompare(right.categoryLabel, 'zh-Hans-CN'))
 }
 
-function scoreQuestionGuidePresence(question: Pick<QuestionListItem, 'guideFallbackCount' | 'guideLinkCount'>) {
-  if (question.guideLinkCount > 0) {
-    return 2
-  }
-  if (question.guideFallbackCount > 0) {
-    return 1
-  }
-  return 0
+function compareInterviewQuestionSourceOrder(left: QuestionListItem, right: QuestionListItem) {
+  return buildInterviewQuestionSourceKey(left).localeCompare(buildInterviewQuestionSourceKey(right), 'en')
+    || left.sourceSequence - right.sourceSequence
+    || left.displayText.localeCompare(right.displayText, 'zh-Hans-CN')
+}
+
+function buildInterviewQuestionSourceKey(question: Pick<QuestionListItem, 'sourceId' | 'sourcePath'>) {
+  const [sourceId, relPathCandidate] = question.sourcePath.split('://')
+  const relPath = relPathCandidate ?? question.sourcePath
+  return `${sourceId || question.sourceId}:${buildGuideOrderKey(relPath)}`
 }
 
 function buildQuestionPresenceSummary(question: Pick<QuestionListItem, 'guideFallbackCount' | 'guideLinkCount'>) {
@@ -4268,6 +4363,75 @@ function writeWorkspaceUiState(state: WorkspaceUiState) {
     return
   }
   window.localStorage.setItem(UI_STATE_STORAGE_KEY, JSON.stringify(state))
+}
+
+function readStoredAnswerEffort(): AnswerGenerationEffort {
+  if (typeof window === 'undefined') {
+    return 'high'
+  }
+
+  try {
+    const raw = window.localStorage.getItem(ANSWER_EFFORT_STORAGE_KEY)
+    return raw === 'low' || raw === 'high' || raw === 'xhigh' ? raw : 'high'
+  } catch {
+    return 'high'
+  }
+}
+
+function writeStoredAnswerEffort(value: AnswerGenerationEffort) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  try {
+    window.localStorage.setItem(ANSWER_EFFORT_STORAGE_KEY, value)
+  } catch {}
+}
+
+function readAnswerJobContexts() {
+  if (typeof window === 'undefined') {
+    return {}
+  }
+
+  try {
+    const raw = window.localStorage.getItem(ANSWER_JOB_CONTEXT_STORAGE_KEY)
+    if (!raw) {
+      return {}
+    }
+
+    const parsed = JSON.parse(raw) as Record<string, Partial<AnswerJobLaunchContext>>
+    const next: Record<string, AnswerJobLaunchContext> = {}
+    for (const [jobId, value] of Object.entries(parsed)) {
+      if (!value || (value.kind !== 'document' && value.kind !== 'interview') || typeof value.questionId !== 'string') {
+        continue
+      }
+      next[jobId] = {
+        anchor: typeof value.anchor === 'string' ? value.anchor : null,
+        documentId: typeof value.documentId === 'string' ? value.documentId : null,
+        jobId,
+        kind: value.kind,
+        knowledgeAnchor: typeof value.knowledgeAnchor === 'string' ? value.knowledgeAnchor : null,
+        questionId: value.questionId,
+        startedAt: typeof value.startedAt === 'string' ? value.startedAt : ''
+      }
+    }
+    return next
+  } catch {
+    return {}
+  }
+}
+
+function writeAnswerJobContexts(contexts: Record<string, AnswerJobLaunchContext>) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  try {
+    const sortedEntries = Object.entries(contexts)
+      .sort((left, right) => right[1].startedAt.localeCompare(left[1].startedAt, 'en'))
+      .slice(0, 180)
+    window.localStorage.setItem(ANSWER_JOB_CONTEXT_STORAGE_KEY, JSON.stringify(Object.fromEntries(sortedEntries)))
+  } catch {}
 }
 
 function readDocumentScrollState() {

@@ -67,6 +67,27 @@ async function main() {
     const metadata = safeObject(question.metadataJson)
     const existingTranslation = normalizeText(metadata.translatedText)
     const cached = findQuestionTranslation(cache, question.id, question.text)
+    const nativeChineseText = shouldReuseNativeChineseQuestion(question.text)
+      ? normalizeText(question.text)
+      : ''
+
+    if (!force && !existingTranslation && nativeChineseText) {
+      const record = upsertQuestionTranslation(cache, {
+        model: 'native-source',
+        questionId: question.id,
+        questionText: question.text,
+        status: 'native_zh',
+        translatedText: nativeChineseText,
+        updatedAt: nowIso()
+      })
+      applyTranslation(db, question, record.translatedText, {
+        model: record.model,
+        status: record.status,
+        updatedAt: record.updatedAt
+      }, updateQuestion, deleteQuestionFts, insertQuestionFts)
+      hydratedFromCache += 1
+      continue
+    }
 
     if (!force && !existingTranslation && cached?.translatedText) {
       applyTranslation(db, question, cached.translatedText, {
@@ -300,6 +321,13 @@ function normalizeText(value) {
   return String(value ?? '')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+function shouldReuseNativeChineseQuestion(value) {
+  const normalized = normalizeText(value)
+  const hanMatches = normalized.match(/[\u4e00-\u9fff]/g) ?? []
+  const latinMatches = normalized.match(/[A-Za-z]/g) ?? []
+  return hanMatches.length >= 4 && hanMatches.length >= Math.max(2, latinMatches.length)
 }
 
 function safeObject(value) {

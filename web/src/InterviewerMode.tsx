@@ -489,7 +489,7 @@ function buildConversationTurns(messages: InterviewerMessage[]): Array<{ content
     }
 
     turns.push({
-      content: `${message.reply.assessment}\n\n${message.reply.interviewer_markdown}`.trim(),
+      content: message.reply.interviewer_markdown.trim(),
       role: 'assistant'
     })
   }

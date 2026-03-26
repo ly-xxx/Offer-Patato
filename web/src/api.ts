@@ -243,6 +243,7 @@ function normalizeQuestionListItem(value: unknown): QuestionListItem {
     role: readNullableString(raw.role),
     sourceId: readString(raw.sourceId),
     sourcePath: readString(raw.sourcePath),
+    sourceSequence: readNumber(raw.sourceSequence, Number.MAX_SAFE_INTEGER),
     sourceTitle: readString(raw.sourceTitle, '未命名来源'),
     text: readString(raw.text, readString(raw.displayText)),
     translatedText: readNullableString(raw.translatedText),
