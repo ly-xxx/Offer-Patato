@@ -72,11 +72,14 @@ type Props = {
   currentDocument: DocumentData | null
   defaultDockLeft?: number
   defaultDockTop?: number
+  dockMainLeft?: number
+  dockMaxHeight?: number
+  dockRightBoundary?: number
   documents: DocumentListItem[]
   model: string
   models: string[]
   onAutoReferenceCurrentDocChange: (value: boolean) => void
-  onDockingStateChange?: (value: boolean) => void
+  onLayoutChange?: (value: { frame: FloatFrame | null; isDefaultDocked: boolean; isOpen: boolean }) => void
   onModelChange: (value: string) => void
   onReasoningEffortChange: (value: ReasoningEffort) => void
   onSelectedProjectIdsChange: (value: string[]) => void
@@ -87,6 +90,12 @@ type Props = {
   selectedReferenceIds: string[]
   workProjects: WorkProject[]
 }
+
+const FLOAT_WINDOW_MIN_WIDTH = 360
+const FLOAT_WINDOW_MIN_HEIGHT = 420
+const FLOAT_WINDOW_EDGE_MARGIN = 8
+const FLOAT_DOCK_GAP = 16
+const FLOAT_DOCK_MIN_DOCUMENT_WIDTH = 860
 
 export function FloatingCodexWindow(props: Props) {
   const isMobile = useMediaQuery('(max-width: 980px)')
@@ -101,6 +110,9 @@ export function FloatingCodexWindow(props: Props) {
   const [frame, setFrame] = useState<FloatFrame>(() => buildDefaultFloatFrame({
     defaultDockLeft: props.defaultDockLeft,
     defaultDockTop: props.defaultDockTop,
+    dockMainLeft: props.dockMainLeft,
+    dockMaxHeight: props.dockMaxHeight,
+    dockRightBoundary: props.dockRightBoundary,
     isCollapsed: false,
     isMobile: typeof window === 'undefined' ? false : window.matchMedia('(max-width: 980px)').matches
   }))
@@ -117,9 +129,12 @@ export function FloatingCodexWindow(props: Props) {
   const defaultFrame = useMemo(() => buildDefaultFloatFrame({
     defaultDockLeft: props.defaultDockLeft,
     defaultDockTop: props.defaultDockTop,
+    dockMainLeft: props.dockMainLeft,
+    dockMaxHeight: props.dockMaxHeight,
+    dockRightBoundary: props.dockRightBoundary,
     isCollapsed,
     isMobile
-  }), [isCollapsed, isMobile, props.defaultDockLeft, props.defaultDockTop])
+  }), [isCollapsed, isMobile, props.defaultDockLeft, props.defaultDockTop, props.dockMainLeft, props.dockMaxHeight, props.dockRightBoundary])
 
   const selectedReferenceDocs = useMemo(() => {
     const byId = new Map(props.documents.map((item) => [item.id, item]))
@@ -187,7 +202,13 @@ export function FloatingCodexWindow(props: Props) {
     const handleResize = () => {
       setFrame((current) => {
         const next = isDefaultDocked
-          ? clampFrame(defaultFrame, isCollapsed)
+          ? clampDockedFrame(current, {
+              dockMainLeft: props.dockMainLeft,
+              dockMaxHeight: props.dockMaxHeight,
+              dockRightBoundary: props.dockRightBoundary,
+              dockTop: props.defaultDockTop,
+              isCollapsed
+            })
           : clampFrame(current, isCollapsed)
         return framesEqual(current, next) ? current : next
       })
@@ -197,7 +218,7 @@ export function FloatingCodexWindow(props: Props) {
     return () => {
       window.removeEventListener('resize', handleResize)
     }
-  }, [defaultFrame, isCollapsed, isDefaultDocked])
+  }, [defaultFrame, isCollapsed, isDefaultDocked, props.defaultDockTop, props.dockMainLeft, props.dockMaxHeight, props.dockRightBoundary])
 
   useEffect(() => {
     if (!isOpen) {
@@ -205,15 +226,25 @@ export function FloatingCodexWindow(props: Props) {
     }
     setFrame((current) => {
       const next = isDefaultDocked
-        ? clampFrame(defaultFrame, isCollapsed)
+        ? clampDockedFrame(current, {
+            dockMainLeft: props.dockMainLeft,
+            dockMaxHeight: props.dockMaxHeight,
+            dockRightBoundary: props.dockRightBoundary,
+            dockTop: props.defaultDockTop,
+            isCollapsed
+          })
         : clampFrame(current, isCollapsed)
       return framesEqual(current, next) ? current : next
     })
-  }, [defaultFrame, isCollapsed, isDefaultDocked, isOpen])
+  }, [defaultFrame, isCollapsed, isDefaultDocked, isOpen, props.defaultDockTop, props.dockMainLeft, props.dockMaxHeight, props.dockRightBoundary])
 
   useEffect(() => {
-    props.onDockingStateChange?.(isOpen && isDefaultDocked)
-  }, [isDefaultDocked, isOpen, props])
+    props.onLayoutChange?.({
+      frame: isOpen ? frame : null,
+      isDefaultDocked,
+      isOpen
+    })
+  }, [frame, isDefaultDocked, isOpen, props.onLayoutChange])
 
   const toggleReference = (documentId: string) => {
     props.onSelectedReferenceIdsChange(
@@ -228,7 +259,6 @@ export function FloatingCodexWindow(props: Props) {
       return
     }
     setIsDefaultDocked(false)
-    props.onDockingStateChange?.(false)
   }
 
   const dragStart = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -278,15 +308,23 @@ export function FloatingCodexWindow(props: Props) {
     if (!currentResize || isCollapsed) {
       return
     }
-    setFrame(clampFrame(
-      resizeFrameByDirection(
-        currentResize.frame,
-        currentResize.direction,
-        event.clientX - currentResize.startX,
-        event.clientY - currentResize.startY
-      ),
-      false
-    ))
+    const resizedFrame = resizeFrameByDirection(
+      currentResize.frame,
+      currentResize.direction,
+      event.clientX - currentResize.startX,
+      event.clientY - currentResize.startY
+    )
+    setFrame(
+      isDefaultDocked
+        ? clampDockedFrame(resizedFrame, {
+            dockMainLeft: props.dockMainLeft,
+            dockMaxHeight: props.dockMaxHeight,
+            dockRightBoundary: props.dockRightBoundary,
+            dockTop: props.defaultDockTop,
+            isCollapsed: false
+          })
+        : clampFrame(resizedFrame, false)
+    )
   }
 
   const resizeEnd = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -841,18 +879,40 @@ function useMediaQuery(query: string) {
 }
 
 function clampFrame(frame: FloatFrame, isCollapsed: boolean) {
-  const minWidth = 360
-  const minHeight = 420
-  const width = clamp(frame.width, minWidth, window.innerWidth - 16)
-  const height = isCollapsed ? 72 : clamp(frame.height, minHeight, window.innerHeight - 84)
-  const x = clamp(frame.x, 8, window.innerWidth - width - 8)
-  const y = clamp(frame.y, 64, window.innerHeight - height - 8)
+  const width = clamp(frame.width, FLOAT_WINDOW_MIN_WIDTH, window.innerWidth - 16)
+  const height = isCollapsed ? 72 : clamp(frame.height, FLOAT_WINDOW_MIN_HEIGHT, window.innerHeight - 84)
+  const x = clamp(frame.x, FLOAT_WINDOW_EDGE_MARGIN, window.innerWidth - width - FLOAT_WINDOW_EDGE_MARGIN)
+  const y = clamp(frame.y, 64, window.innerHeight - height - FLOAT_WINDOW_EDGE_MARGIN)
+  return { height, width, x, y }
+}
+
+function clampDockedFrame(frame: FloatFrame, props: {
+  dockMainLeft?: number
+  dockMaxHeight?: number
+  dockRightBoundary?: number
+  dockTop?: number
+  isCollapsed: boolean
+}) {
+  const rightBoundary = Math.max(FLOAT_WINDOW_MIN_WIDTH + FLOAT_WINDOW_EDGE_MARGIN, props.dockRightBoundary ?? (window.innerWidth - 16))
+  const topBoundary = clamp(props.dockTop ?? 96, 72, Math.max(72, window.innerHeight - 180))
+  const maxWidthByViewport = Math.max(FLOAT_WINDOW_MIN_WIDTH, rightBoundary - FLOAT_WINDOW_EDGE_MARGIN)
+  const maxWidthByDocument = typeof props.dockMainLeft === 'number'
+    ? Math.max(FLOAT_WINDOW_MIN_WIDTH, rightBoundary - props.dockMainLeft - FLOAT_DOCK_GAP - FLOAT_DOCK_MIN_DOCUMENT_WIDTH)
+    : maxWidthByViewport
+  const width = clamp(frame.width, FLOAT_WINDOW_MIN_WIDTH, Math.min(maxWidthByViewport, maxWidthByDocument))
+  const maxHeight = Math.max(FLOAT_WINDOW_MIN_HEIGHT, Math.min(props.dockMaxHeight ?? (window.innerHeight - topBoundary - FLOAT_WINDOW_EDGE_MARGIN), window.innerHeight - topBoundary - FLOAT_WINDOW_EDGE_MARGIN))
+  const height = props.isCollapsed ? 72 : clamp(frame.height, FLOAT_WINDOW_MIN_HEIGHT, maxHeight)
+  const x = clamp(rightBoundary - width, FLOAT_WINDOW_EDGE_MARGIN, Math.max(FLOAT_WINDOW_EDGE_MARGIN, rightBoundary - FLOAT_WINDOW_MIN_WIDTH))
+  const y = clamp(frame.y, topBoundary, window.innerHeight - height - FLOAT_WINDOW_EDGE_MARGIN)
   return { height, width, x, y }
 }
 
 function buildDefaultFloatFrame(props: {
   defaultDockLeft?: number
   defaultDockTop?: number
+  dockMainLeft?: number
+  dockMaxHeight?: number
+  dockRightBoundary?: number
   isCollapsed: boolean
   isMobile: boolean
 }): FloatFrame {
@@ -882,16 +942,22 @@ function buildDefaultFloatFrame(props: {
 
   const width = 432
   const top = clamp(props.defaultDockTop ?? 136, 88, Math.max(88, window.innerHeight - 180))
-  const expandedHeight = clamp(window.innerHeight - top - 18, 520, 1040)
+  const expandedHeight = clamp(props.dockMaxHeight ?? (window.innerHeight - top - 18), 520, 1040)
   const height = props.isCollapsed ? 72 : expandedHeight
-  const defaultLeft = props.defaultDockLeft ?? (window.innerWidth - width - 24)
+  const defaultLeft = props.defaultDockLeft ?? (props.dockRightBoundary ?? (window.innerWidth - 16)) - width
 
-  return clampFrame({
+  return clampDockedFrame({
     height,
     width,
     x: defaultLeft,
     y: top
-  }, props.isCollapsed)
+  }, {
+    dockMainLeft: props.dockMainLeft,
+    dockMaxHeight: props.dockMaxHeight,
+    dockRightBoundary: props.dockRightBoundary,
+    dockTop: props.defaultDockTop,
+    isCollapsed: props.isCollapsed
+  })
 }
 
 function resizeFrameByDirection(frame: FloatFrame, direction: ResizeDirection, deltaX: number, deltaY: number): FloatFrame {

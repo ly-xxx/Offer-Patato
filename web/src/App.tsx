@@ -166,6 +166,24 @@ type JobToast = {
   status: 'cancelled' | 'failed' | 'ready'
   title: string
 }
+type CodexFloatFrame = {
+  height: number
+  width: number
+  x: number
+  y: number
+}
+type CodexDockMetrics = {
+  defaultLeft: number | null
+  mainLeft: number | null
+  maxHeight: number
+  rightBoundary: number
+  top: number
+}
+type CodexWindowLayoutState = {
+  frame: CodexFloatFrame | null
+  isDefaultDocked: boolean
+  isOpen: boolean
+}
 
 const UI_STATE_STORAGE_KEY = 'offerloom.workspace-ui.v1'
 const DOC_SCROLL_STORAGE_KEY = 'offerloom.doc-scroll.v1'
@@ -341,10 +359,20 @@ function App() {
   const [unreadCompletedJobIds, setUnreadCompletedJobIds] = useState<string[]>([])
   const [workspaceUi, setWorkspaceUi] = useState<WorkspaceUiState>(() => readWorkspaceUiState())
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
-  const [isCodexDefaultDocked, setIsCodexDefaultDocked] = useState(true)
-  const [codexDockLeft, setCodexDockLeft] = useState<number | null>(null)
-  const [codexDockTop, setCodexDockTop] = useState(DEFAULT_CODEX_DOCK_TOP)
-  const [codexReservedDocWidth, setCodexReservedDocWidth] = useState<number | null>(null)
+  const [codexDockMetrics, setCodexDockMetrics] = useState<CodexDockMetrics>(() => ({
+    defaultLeft: null,
+    mainLeft: null,
+    maxHeight: Math.max(420, 720),
+    rightBoundary: typeof window === 'undefined'
+      ? CODEX_DOCK_VIEWPORT_MARGIN + CODEX_FLOAT_DEFAULT_WIDTH
+      : Math.max(CODEX_DOCK_VIEWPORT_MARGIN + CODEX_FLOAT_DEFAULT_WIDTH, window.innerWidth - CODEX_DOCK_VIEWPORT_MARGIN),
+    top: DEFAULT_CODEX_DOCK_TOP
+  }))
+  const [codexWindowLayout, setCodexWindowLayout] = useState<CodexWindowLayoutState>({
+    frame: null,
+    isDefaultDocked: true,
+    isOpen: true
+  })
   const [expandedGuideKeys, setExpandedGuideKeys] = useState<string[]>([])
   const [expandedInterviewCategoryIds, setExpandedInterviewCategoryIds] = useState<string[]>([])
   const lastIndexJobStatusRef = useRef<string | null>(null)
@@ -486,8 +514,10 @@ function App() {
   ), [isMobile, viewportWidth, workspaceUi.sidebarWidth])
 
   const effectiveSidebarOpen = isMobile ? mobileSidebarOpen : workspaceUi.sidebarOpen
+  const codexReservedDocWidth = useMemo(() => (
+    measureCodexReservedDocWidth(codexDockMetrics, codexWindowLayout)
+  ), [codexDockMetrics, codexWindowLayout])
   const shouldReserveCodexDockRail = !isMobile
-    && isCodexDefaultDocked
     && (codexReservedDocWidth ?? 0) >= MIN_DOC_STAGE_WIDTH_WITH_CODEX_DOCK
 
   const appStyle = useMemo(() => (
@@ -518,12 +548,14 @@ function App() {
           layoutRef: studyLayoutRef,
           mainRef: mainStageRef
         })
-        setCodexDockLeft((current) => current === nextMetrics.left ? current : nextMetrics.left)
-        setCodexDockTop((current) => Math.abs(current - nextMetrics.top) < 1 ? current : nextMetrics.top)
-        setCodexReservedDocWidth((current) => (
-          current !== null && nextMetrics.reserveWidth !== null && Math.abs(current - nextMetrics.reserveWidth) < 1
+        setCodexDockMetrics((current) => (
+          current.defaultLeft === nextMetrics.defaultLeft
+            && current.mainLeft === nextMetrics.mainLeft
+            && current.maxHeight === nextMetrics.maxHeight
+            && current.rightBoundary === nextMetrics.rightBoundary
+            && Math.abs(current.top - nextMetrics.top) < 1
             ? current
-            : nextMetrics.reserveWidth
+            : nextMetrics
         ))
       })
     }
@@ -550,7 +582,7 @@ function App() {
       observer?.disconnect()
       window.removeEventListener('resize', updateDockTop)
     }
-  }, [deferredSearch, effectiveSidebarOpen, isMobile, searchPreview, sidebarWidth, statusNote, workspaceUi.sidebarTab, shouldReserveCodexDockRail, viewportWidth])
+  }, [deferredSearch, effectiveSidebarOpen, isMobile, searchPreview, sidebarWidth, statusNote, workspaceUi.sidebarTab, viewportWidth])
 
   const sidebarToggleStyle = useMemo(() => {
     if (isMobile) {
@@ -2487,13 +2519,16 @@ function App() {
       <FloatingCodexWindow
         autoReferenceCurrentDoc={autoReferenceCurrentDoc}
         currentDocument={activeDocument}
-        defaultDockLeft={codexDockLeft ?? undefined}
-        defaultDockTop={codexDockTop}
+        defaultDockLeft={codexDockMetrics.defaultLeft ?? undefined}
+        defaultDockTop={codexDockMetrics.top}
+        dockMainLeft={codexDockMetrics.mainLeft ?? undefined}
+        dockMaxHeight={codexDockMetrics.maxHeight}
+        dockRightBoundary={codexDockMetrics.rightBoundary}
         documents={documents}
         model={model}
         models={meta?.models ?? ['gpt-5.4', 'gpt-5.2', 'gpt-5']}
         onAutoReferenceCurrentDocChange={setAutoReferenceCurrentDoc}
-        onDockingStateChange={setIsCodexDefaultDocked}
+        onLayoutChange={setCodexWindowLayout}
         onModelChange={setModel}
         onReasoningEffortChange={setReasoningEffort}
         onSelectedProjectIdsChange={setSelectedProjectIds}
@@ -3054,7 +3089,9 @@ function GenerationHistoryCard(props: {
   history: QuestionDetail['generationHistory']
   latestTime?: string | null
 }) {
-  if (props.history.length === 0) {
+  const history = props.history ?? []
+
+  if (history.length === 0) {
     return null
   }
 
@@ -3062,14 +3099,14 @@ function GenerationHistoryCard(props: {
     <div className="answer-card answer-list-card generation-history-card">
       <span>生成记录</span>
       <div className="generation-history-summary">
-        <strong>{props.history.length} 次</strong>
+        <strong>{history.length} 次</strong>
         <small>{props.latestTime ? `最近一次 ${formatUiDateTime(props.latestTime)}` : '已持久化保存'}</small>
       </div>
       <div className="generation-history-list">
-        {props.history.map((entry, index) => (
+        {history.map((entry, index) => (
           <div key={entry.id} className="generation-history-item">
             <div>
-              <strong>第 {props.history.length - index} 次</strong>
+              <strong>第 {history.length - index} 次</strong>
               <small>{formatUiDateTime(entry.updatedAt)}</small>
             </div>
             <div className="generation-history-meta">
@@ -3374,12 +3411,17 @@ function InterviewQuestionStage(props: {
   sectionRefs: MutableRefObject<Map<string, HTMLElement>>
 }) {
   const generated = props.question.generated?.output ?? null
+  const generationHistory = props.question.generationHistory ?? []
+  const guideMatches = props.question.guideMatches ?? []
+  const guideFallbackMatches = props.question.guideFallbackMatches ?? []
+  const workMatches = props.question.workMatches ?? []
+  const workHintMatches = props.question.workHintMatches ?? []
   const company = readQuestionMetaString(props.question.metadata, 'company')
   const role = readQuestionMetaString(props.question.metadata, 'role')
   const interviewDate = readQuestionMetaString(props.question.metadata, 'interviewDate')
   const categoryLabel = readQuestionMetaString(props.question.metadata, 'primaryCategoryLabel') ?? '面经题'
   const stageSections = buildInterviewStageSections(props.question)
-  const totalGuideAppearances = props.question.guideMatches.length + props.question.guideFallbackMatches.length
+  const totalGuideAppearances = guideMatches.length + guideFallbackMatches.length
 
   const renderStageSection = (section: InterviewStageSectionSpec) => {
     if (section.kind === 'source') {
@@ -3403,8 +3445,8 @@ function InterviewQuestionStage(props: {
               <span>主线出现</span>
               <div className="question-appearance-card">
                 <GuidePresenceBadge
-                  exactCount={props.question.guideMatches.length}
-                  fallbackCount={props.question.guideFallbackMatches.length}
+                  exactCount={guideMatches.length}
+                  fallbackCount={guideFallbackMatches.length}
                 />
                 <div className="question-appearance-stats">
                   <div className="appearance-stat-chip">
@@ -3412,19 +3454,19 @@ function InterviewQuestionStage(props: {
                     <small>总出现次数</small>
                   </div>
                   <div className="appearance-stat-chip">
-                    <strong>{props.question.guideMatches.length}</strong>
+                    <strong>{guideMatches.length}</strong>
                     <small>精确锚点</small>
                   </div>
                   <div className="appearance-stat-chip">
-                    <strong>{props.question.guideFallbackMatches.length}</strong>
+                    <strong>{guideFallbackMatches.length}</strong>
                     <small>章节兜底</small>
                   </div>
                 </div>
                 <p>
-                  {props.question.guideMatches.length > 0
-                    ? `这道题已经在主线里出现 ${totalGuideAppearances} 次，其中精确命中 ${props.question.guideMatches.length} 次，可以直接沿反引回到对应知识点。`
-                    : props.question.guideFallbackMatches.length > 0
-                      ? `这道题暂时只在章末补充里出现 ${props.question.guideFallbackMatches.length} 次，说明它和章节主题相关，但还没有卡到具体段落。`
+                  {guideMatches.length > 0
+                    ? `这道题已经在主线里出现 ${totalGuideAppearances} 次，其中精确命中 ${guideMatches.length} 次，可以直接沿反引回到对应知识点。`
+                    : guideFallbackMatches.length > 0
+                      ? `这道题暂时只在章末补充里出现 ${guideFallbackMatches.length} 次，说明它和章节主题相关，但还没有卡到具体段落。`
                       : '主线里还没有出现这道题，需要靠当前题库和动态答案补齐。'}
                 </p>
               </div>
@@ -3432,9 +3474,9 @@ function InterviewQuestionStage(props: {
 
             <div className="answer-card micro-answer">
               <span>项目依据</span>
-              {props.question.workMatches.length > 0 ? (
+              {workMatches.length > 0 ? (
                 <p>已经命中直接相关的 `mywork` 证据，可以直接往自己的项目表达上靠。</p>
-              ) : props.question.workHintMatches.length > 0 ? (
+              ) : workHintMatches.length > 0 ? (
                 <p>暂时只有相邻项目材料，适合做贴边表达，不建议硬说成直接经验。</p>
               ) : (
                 <p>当前没有强直接项目证据，这题更适合从主线知识和工程理解作答。</p>
@@ -3442,11 +3484,11 @@ function InterviewQuestionStage(props: {
             </div>
           </div>
 
-          {props.question.guideMatches.length > 0 && (
+          {guideMatches.length > 0 && (
             <div className="answer-card answer-list-card">
               <span>反引到主线</span>
               <div className="citation-list">
-                {props.question.guideMatches.slice(0, 4).map((match) => (
+                {guideMatches.slice(0, 4).map((match) => (
                   <button key={match.id} className="citation-chip actionable" onClick={() => props.onOpenGuideMatch(match)}>
                     <strong>{match.documentTitle}</strong>
                     <small>{match.heading}</small>
@@ -3456,11 +3498,11 @@ function InterviewQuestionStage(props: {
             </div>
           )}
 
-          {props.question.guideFallbackMatches.length > 0 && (
+          {guideFallbackMatches.length > 0 && (
             <div className="answer-card answer-list-card">
               <span>章末补充入口</span>
               <div className="citation-list">
-                {props.question.guideFallbackMatches.slice(0, 4).map((match) => (
+                {guideFallbackMatches.slice(0, 4).map((match) => (
                   <button key={`${match.documentId}-${match.relPath}`} className="citation-chip actionable fallback" onClick={() => props.onOpenGuideFallback(match)}>
                     <strong>{match.documentTitle}</strong>
                     <small>{match.path}</small>
@@ -3470,11 +3512,11 @@ function InterviewQuestionStage(props: {
             </div>
           )}
 
-          {(props.question.workMatches.length > 0 || props.question.workHintMatches.length > 0) && (
+          {(workMatches.length > 0 || workHintMatches.length > 0) && (
             <div className="answer-card answer-list-card">
               <span>相关工作材料</span>
               <div className="citation-list">
-                {(props.question.workMatches.length > 0 ? props.question.workMatches : props.question.workHintMatches)
+                {(workMatches.length > 0 ? workMatches : workHintMatches)
                   .slice(0, 4)
                   .map((item) => (
                     <button key={item.id} className="citation-chip actionable" onClick={() => props.onOpenWorkMatch(item)}>
@@ -3503,7 +3545,7 @@ function InterviewQuestionStage(props: {
       )
     }
 
-    if (section.kind === 'generation_history' && props.question.generationHistory.length > 0) {
+    if (section.kind === 'generation_history' && generationHistory.length > 0) {
       return (
         <>
           <div className="footnote-heading">
@@ -3511,7 +3553,7 @@ function InterviewQuestionStage(props: {
             <strong>{section.heading}</strong>
           </div>
           <GenerationHistoryCard
-            history={props.question.generationHistory}
+            history={generationHistory}
             latestTime={props.question.lastGeneratedAt}
           />
         </>
@@ -3802,7 +3844,10 @@ function buildQuestionPresenceSummary(question: Pick<QuestionListItem, 'guideFal
 
 function buildInterviewStageSections(question: QuestionDetail): InterviewStageSectionSpec[] {
   const generated = question.generated?.output ?? null
-  const appearanceCount = question.guideMatches.length + question.guideFallbackMatches.length
+  const guideMatches = question.guideMatches ?? []
+  const guideFallbackMatches = question.guideFallbackMatches ?? []
+  const generationHistory = question.generationHistory ?? []
+  const appearanceCount = guideMatches.length + guideFallbackMatches.length
   const sections: InterviewStageSectionSpec[] = [
     {
       anchor: 'source',
@@ -3813,10 +3858,10 @@ function buildInterviewStageSections(question: QuestionDetail): InterviewStageSe
     }
   ]
 
-  if (question.generationHistory.length > 0) {
+  if (generationHistory.length > 0) {
     sections.push({
       anchor: 'generation-history',
-      badge: question.generationHistory.length,
+      badge: generationHistory.length,
       heading: '生成记录',
       kind: 'generation_history',
       kicker: 'HISTORY'
@@ -4351,11 +4396,13 @@ function getDocumentScrollBaseTop(documentId: string) {
 function readCodexDockMetrics(props: {
   layoutRef: RefObject<HTMLDivElement | null>
   mainRef: RefObject<HTMLElement | null>
-}) {
+}): CodexDockMetrics {
   if (typeof window === 'undefined') {
     return {
-      left: null,
-      reserveWidth: null,
+      defaultLeft: null,
+      mainLeft: null,
+      maxHeight: 720,
+      rightBoundary: CODEX_DOCK_VIEWPORT_MARGIN + CODEX_FLOAT_DEFAULT_WIDTH,
       top: DEFAULT_CODEX_DOCK_TOP
     }
   }
@@ -4366,14 +4413,17 @@ function readCodexDockMetrics(props: {
   const mainRect = props.mainRef.current?.getBoundingClientRect()
   if (!mainRect) {
     return {
-      left: fallbackLeft,
-      reserveWidth: null,
+      defaultLeft: fallbackLeft,
+      mainLeft: null,
+      maxHeight: Math.max(420, window.innerHeight - CODEX_DOCK_VIEWPORT_MARGIN - fallbackTop),
+      rightBoundary: window.innerWidth - CODEX_DOCK_VIEWPORT_MARGIN,
       top: fallbackTop
     }
   }
 
   const mainLeft = Math.round(mainRect.left)
   const top = clampNumber(Math.round(mainRect.top), 92, Math.max(92, window.innerHeight - 180), fallbackTop)
+  const maxHeight = Math.max(420, window.innerHeight - CODEX_DOCK_VIEWPORT_MARGIN - top)
   const rightBoundary = Math.max(
     CODEX_DOCK_VIEWPORT_MARGIN + CODEX_FLOAT_DEFAULT_WIDTH,
     Math.min(
@@ -4388,14 +4438,29 @@ function readCodexDockMetrics(props: {
   )
   const preferredDockLeft = Math.round(mainLeft + preferredDocWidth + CODEX_DOCK_GAP)
   const maxDockLeft = Math.max(CODEX_DOCK_VIEWPORT_MARGIN, rightBoundary - CODEX_FLOAT_DEFAULT_WIDTH)
-  const left = clampNumber(preferredDockLeft, CODEX_DOCK_VIEWPORT_MARGIN, maxDockLeft, fallbackLeft)
-  const reserveWidth = Math.max(0, left - mainLeft - CODEX_DOCK_GAP)
+  const defaultLeft = clampNumber(preferredDockLeft, CODEX_DOCK_VIEWPORT_MARGIN, maxDockLeft, fallbackLeft)
 
   return {
-    left,
-    reserveWidth,
+    defaultLeft,
+    mainLeft,
+    maxHeight,
+    rightBoundary,
     top
   }
+}
+
+function measureCodexReservedDocWidth(
+  metrics: CodexDockMetrics,
+  layout: CodexWindowLayoutState
+) {
+  if (!layout.isOpen || !layout.isDefaultDocked || !layout.frame || metrics.mainLeft === null) {
+    return null
+  }
+
+  return Math.min(
+    MAX_DOC_STAGE_WIDTH_WITH_CODEX_DOCK,
+    Math.max(0, layout.frame.x - metrics.mainLeft - CODEX_DOCK_GAP)
+  )
 }
 
 function buildWorkspaceCssVars(workspaceUi: WorkspaceUiState) {
