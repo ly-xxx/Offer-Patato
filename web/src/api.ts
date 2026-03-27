@@ -445,6 +445,11 @@ function normalizeCodexConsoleJob(value: unknown): CodexConsoleJob {
 function normalizeInterviewerJob(value: unknown): InterviewerJob {
   const raw = readRecord(value)
   return {
+    candidateAnswer: readNullableString(raw.candidateAnswer) ?? undefined,
+    conversation: readArray<Record<string, unknown>>(raw.conversation).map((item) => ({
+      content: readString(item.content),
+      role: item.role === 'assistant' ? 'assistant' : 'user'
+    })),
     error: readNullableString(raw.error) ?? undefined,
     finishedAt: readNullableString(raw.finishedAt) ?? undefined,
     id: readString(raw.id),

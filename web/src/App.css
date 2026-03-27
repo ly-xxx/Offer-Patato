@@ -3681,6 +3681,10 @@
   line-height: 1.6;
 }
 
+.interviewer-assessment-box.compact {
+  padding: 12px 14px;
+}
+
 .fixed-model-pill {
   min-height: 40px;
   padding: 0 14px;
@@ -4182,6 +4186,41 @@
   gap: 6px;
 }
 
+.agent-job-card.interviewer-job-stack {
+  position: relative;
+  isolation: isolate;
+}
+
+.agent-job-card.interviewer-job-stack > *:not(.agent-job-stack-layers) {
+  position: relative;
+  z-index: 1;
+}
+
+.agent-job-stack-layers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.agent-job-stack-layers span {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(246, 250, 252, 0.28));
+}
+
+.agent-job-stack-layers span:first-child {
+  transform: translate(0, 4px) scale(0.988);
+  opacity: 0.5;
+}
+
+.agent-job-stack-layers span:last-child {
+  transform: translate(0, 8px) scale(0.976);
+  opacity: 0.28;
+}
+
 .agent-job-top {
   display: flex;
   align-items: center;
@@ -4197,6 +4236,59 @@
 .prompt-editor-card {
   display: grid;
   gap: 10px;
+}
+
+.interviewer-history-timeline {
+  display: grid;
+  gap: 14px;
+}
+
+.interviewer-history-round {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(247, 251, 253, 0.56));
+}
+
+.interviewer-history-round-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.interviewer-history-round-head strong {
+  display: block;
+}
+
+.interviewer-history-round-head p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.interviewer-history-round-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.interviewer-history-message {
+  width: 100%;
+}
+
+.interviewer-history-reply-card {
+  width: min(100%, 720px);
+}
+
+.interviewer-history-reply-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .job-live-preview {

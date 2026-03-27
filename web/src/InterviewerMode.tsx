@@ -140,14 +140,13 @@ export function InterviewerModeDrawer(props: Props) {
       state: 'running'
     }
 
-    const historyMessages = [...messages, userMessage]
     setMessages((current) => [...current, userMessage, assistantPlaceholder])
     setInput('')
 
     try {
       const job = await startInterviewerJob({
         candidateAnswer: trimmed,
-        conversation: buildConversationTurns(historyMessages),
+        conversation: buildConversationTurns(messages),
         questionId: session.questionId,
         reasoningEffort: props.reasoningEffort,
         seedFollowUp: session.seedFollowUp

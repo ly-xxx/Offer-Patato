@@ -108,6 +108,8 @@ export type InterviewerReply = {
 }
 
 export type InterviewerJobStatus = {
+  candidateAnswer?: string
+  conversation: ConsoleConversationTurn[]
   error?: string
   finishedAt?: string
   id: string
@@ -742,6 +744,11 @@ export class InterviewerModeManager {
     const jobId = `interviewer_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
     const previewSource = options.candidateAnswer?.trim() || options.seedFollowUp
     const job: InterviewerJobStatus = {
+      candidateAnswer: options.candidateAnswer?.trim() || undefined,
+      conversation: options.conversation.map((item) => ({
+        content: item.content,
+        role: item.role
+      })),
       id: jobId,
       kind: 'interviewer',
       liveLogs: [],
@@ -770,8 +777,8 @@ export class InterviewerModeManager {
     }
 
     return this.start({
-      candidateAnswer: current.messagePreview,
-      conversation: [],
+      candidateAnswer: current.candidateAnswer,
+      conversation: current.conversation,
       promptOverride: promptOverride?.trim() || current.promptPreview,
       questionId: current.questionId,
       reasoningEffort: current.reasoningEffort,
@@ -910,6 +917,19 @@ export class InterviewerModeManager {
         return
       }
 
+      job.conversation = [
+        ...options.conversation,
+        ...(options.candidateAnswer?.trim()
+          ? [{
+              content: options.candidateAnswer.trim(),
+              role: 'user' as const
+            }]
+          : []),
+        {
+          content: parsed.interviewer_markdown.trim(),
+          role: 'assistant' as const
+        }
+      ]
       job.status = 'ready'
       job.stage = 'ready'
       job.summary = '面试官回合已返回'
@@ -920,6 +940,15 @@ export class InterviewerModeManager {
       if (this.jobs.get(jobId)?.status === 'cancelled') {
         return
       }
+      job.conversation = [
+        ...options.conversation,
+        ...(options.candidateAnswer?.trim()
+          ? [{
+              content: options.candidateAnswer.trim(),
+              role: 'user' as const
+            }]
+          : [])
+      ]
       job.status = 'failed'
       job.stage = 'failed'
       job.summary = '面试官模式失败'

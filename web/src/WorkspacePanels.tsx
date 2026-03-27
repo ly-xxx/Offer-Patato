@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import ReactMarkdown from 'react-markdown'
+import rehypeKatex from 'rehype-katex'
 import {
   Bot,
   FolderInput,
@@ -14,9 +16,13 @@ import {
   Wand2,
   X
 } from 'lucide-react'
+import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
 
+import { normalizeMarkdownForRender } from './markdown'
 import type {
   AgentJob,
+  InterviewerReply,
   IndexJobStatus,
   SourcesConfig,
   SourcesSettingsSnapshot,
@@ -301,12 +307,15 @@ export function JobsDrawer(props: {
   promptDraft: string
   selectedJob: AgentJob | null
 }) {
-  const running = props.jobs.filter((job) => job.status === 'queued' || job.status === 'running')
-  const history = props.jobs.filter((job) => job.status !== 'queued' && job.status !== 'running')
+  const { historyEntries, interviewerGroup, runningEntries } = buildJobEntries(props.jobs, props.selectedJob)
+  const effectiveSelectedJob: AgentJob | null = interviewerGroup?.latestJob ?? props.selectedJob
+  const effectivePromptDraft = interviewerGroup && interviewerGroup.latestJob.id !== props.selectedJob?.id
+    ? interviewerGroup.latestJob.promptPreview ?? ''
+    : props.promptDraft
 
   return (
     <OverlayDrawer
-      description={`${running.length} 运行 · ${history.length} 完成`}
+      description={`${runningEntries.length} 运行 · ${historyEntries.length} 完成`}
       icon={<Bot size={18} />}
       onClose={props.onClose}
       open={props.open}
@@ -326,68 +335,154 @@ export function JobsDrawer(props: {
           <div className="agent-job-section">
             <span className="agent-group-title">正在运行</span>
             <div className="agent-job-list">
-              {(running.length > 0 ? running : history.slice(0, 8)).map((job) => (
-                <button
-                  key={job.id}
-                  className={`agent-job-card ${props.selectedJob?.id === job.id ? 'active' : ''}`}
-                  onClick={() => props.onSelectJob(job.id)}
-                >
-                  <div className="agent-job-top">
-                    <span className={`pill subtle kind-${job.kind}`}>{describeJobKind(job.kind)}</span>
-                    <span className={`pill ${job.status === 'ready' ? 'success' : ''}`}>{describeJobStatus(job.status)}</span>
-                  </div>
-                  <strong>{readJobTitle(job)}</strong>
-                  <p>{job.summary ?? readJobSummary(job)}</p>
-                  <small>{job.stage ?? 'queued'}</small>
-                </button>
-              ))}
+              {(runningEntries.length > 0 ? runningEntries : historyEntries.slice(0, 8)).map((entry) => renderJobEntryCard(entry, interviewerGroup, props.selectedJob, props.onSelectJob))}
             </div>
           </div>
 
-          {history.length > 0 && (
+          {historyEntries.length > 0 && (
             <div className="agent-job-section">
               <span className="agent-group-title">最近完成</span>
               <div className="agent-job-list compact">
-                {history.slice(0, 10).map((job) => (
-                  <button
-                    key={job.id}
-                    className={`agent-job-card compact ${props.selectedJob?.id === job.id ? 'active' : ''}`}
-                    onClick={() => props.onSelectJob(job.id)}
-                  >
-                    <div className="agent-job-top">
-                      <span className={`pill subtle kind-${job.kind}`}>{describeJobKind(job.kind)}</span>
-                      <span className={`pill ${job.status === 'ready' ? 'success' : ''}`}>{describeJobStatus(job.status)}</span>
-                    </div>
-                    <strong>{readJobTitle(job)}</strong>
-                    <p>{job.summary ?? readJobSummary(job)}</p>
-                  </button>
-                ))}
+                {historyEntries.slice(0, 10).map((entry) => renderJobEntryCard(entry, interviewerGroup, props.selectedJob, props.onSelectJob, true))}
               </div>
             </div>
           )}
         </section>
 
         <section className="control-card">
-          {props.selectedJob ? (
+          {interviewerGroup && effectiveSelectedJob?.kind === 'interviewer' ? (
             <>
               <div className="control-card-head compact">
                 <div className="section-headline">
                   <span className="section-head-icon" aria-hidden="true">
                     <Bot size={15} />
                   </span>
-                  <strong>{readJobTitle(props.selectedJob)}</strong>
+                  <strong>{interviewerGroup.title}</strong>
                 </div>
                 <div className="job-action-row">
-                  {(props.selectedJob.status === 'queued' || props.selectedJob.status === 'running') && (
-                    <button className="ghost-button danger-button" onClick={() => props.onCancel(props.selectedJob!.id)}>
+                  {(effectiveSelectedJob.status === 'queued' || effectiveSelectedJob.status === 'running') && (
+                    <button className="ghost-button danger-button" onClick={() => props.onCancel(effectiveSelectedJob.id)}>
                       <Square size={15} />
                       停止
                     </button>
                   )}
-                  {props.selectedJob.kind !== 'index' && (
+                  <button
+                    className="ghost-button"
+                    onClick={() => props.onRerun(effectiveSelectedJob.id, effectivePromptDraft)}
+                  >
+                    <RefreshCw size={15} />
+                    重跑
+                  </button>
+                </div>
+              </div>
+
+              <div className="settings-meta-grid">
+                <div className="settings-meta-chip">
+                  <span>类型</span>
+                  <strong>面试官会话</strong>
+                </div>
+                <div className="settings-meta-chip">
+                  <span>轮次</span>
+                  <strong>{interviewerGroup.jobs.length}</strong>
+                </div>
+                <div className="settings-meta-chip">
+                  <span>最新状态</span>
+                  <strong>{describeJobStatus(effectiveSelectedJob.status)}</strong>
+                </div>
+                <div className="settings-meta-chip">
+                  <span>模型</span>
+                  <strong>{effectiveSelectedJob.model}</strong>
+                </div>
+                <div className="settings-meta-chip">
+                  <span>effort</span>
+                  <strong>{effectiveSelectedJob.reasoningEffort}</strong>
+                </div>
+                <div className="settings-meta-chip">
+                  <span>阶段</span>
+                  <strong>{effectiveSelectedJob.stage ?? 'queued'}</strong>
+                </div>
+              </div>
+
+              <div className="interviewer-history-timeline">
+                {interviewerGroup.jobs
+                  .slice()
+                  .sort((left, right) => left.startedAt.localeCompare(right.startedAt, 'en'))
+                  .map((job, index) => (
+                    <section key={job.id} className="interviewer-history-round">
+                      <div className="interviewer-history-round-head">
+                        <div>
+                          <strong>{`第 ${index + 1} 轮`}</strong>
+                          <p>{formatJobStartedAt(job.startedAt)}</p>
+                        </div>
+                        <div className="interviewer-history-round-meta">
+                          <span className={`pill subtle ${job.status === 'ready' ? 'success' : ''}`}>{describeJobStatus(job.status)}</span>
+                        </div>
+                      </div>
+
+                      {job.candidateAnswer?.trim() && (
+                        <article className="console-message user interviewer-history-message">
+                          <div className="console-message-bubble">
+                            <p>{job.candidateAnswer.trim()}</p>
+                          </div>
+                        </article>
+                      )}
+
+                      <article className="console-message assistant interviewer-history-message">
+                        {job.status === 'ready' && job.result ? (
+                          <InterviewerHistoryReplyCard reply={job.result} />
+                        ) : (
+                          <div className={`console-assistant-card ${job.status === 'running' ? 'running' : job.status}`}>
+                            <span className="console-inline-status">{job.summary ?? '面试官正在处理这一轮'}</span>
+                            {job.liveText && (
+                              <div className="console-markdown live-preview">
+                                {normalizeMarkdownForRender(job.liveText)}
+                              </div>
+                            )}
+                            {job.error && <p className="console-summary">{job.error}</p>}
+                            {job.liveLogs && job.liveLogs.length > 0 && (
+                              <div className="job-log-list stream-log-list">
+                                {job.liveLogs.slice(-6).map((line: string) => (
+                                  <div key={`${job.id}-${line}`} className="job-log-line">{line}</div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </article>
+                    </section>
+                  ))}
+              </div>
+
+              {effectiveSelectedJob.promptPreview ? (
+                <div className="prompt-editor-card">
+                  <span>Prompt</span>
+                  <textarea
+                    value={effectivePromptDraft}
+                    onChange={(event) => props.onPromptDraftChange(event.target.value)}
+                  />
+                </div>
+              ) : null}
+            </>
+          ) : effectiveSelectedJob ? (
+            <>
+              <div className="control-card-head compact">
+                <div className="section-headline">
+                  <span className="section-head-icon" aria-hidden="true">
+                    <Bot size={15} />
+                  </span>
+                  <strong>{readJobTitle(effectiveSelectedJob)}</strong>
+                </div>
+                <div className="job-action-row">
+                  {(effectiveSelectedJob.status === 'queued' || effectiveSelectedJob.status === 'running') && (
+                    <button className="ghost-button danger-button" onClick={() => props.onCancel(effectiveSelectedJob.id)}>
+                      <Square size={15} />
+                      停止
+                    </button>
+                  )}
+                  {effectiveSelectedJob.kind !== 'index' && (
                     <button
                       className="ghost-button"
-                      onClick={() => props.onRerun(props.selectedJob!.id, props.promptDraft)}
+                      onClick={() => props.onRerun(effectiveSelectedJob.id, props.promptDraft)}
                     >
                       <RefreshCw size={15} />
                       重跑
@@ -399,27 +494,27 @@ export function JobsDrawer(props: {
               <div className="settings-meta-grid">
                 <div className="settings-meta-chip">
                   <span>类型</span>
-                  <strong>{describeJobKind(props.selectedJob.kind)}</strong>
+                  <strong>{describeJobKind(effectiveSelectedJob.kind)}</strong>
                 </div>
-                {'model' in props.selectedJob && (
+                {'model' in effectiveSelectedJob && (
                   <div className="settings-meta-chip">
                     <span>模型</span>
-                    <strong>{props.selectedJob.model}</strong>
+                    <strong>{effectiveSelectedJob.model}</strong>
                   </div>
                 )}
-                {'reasoningEffort' in props.selectedJob && (
+                {'reasoningEffort' in effectiveSelectedJob && (
                   <div className="settings-meta-chip">
                     <span>effort</span>
-                    <strong>{props.selectedJob.reasoningEffort}</strong>
+                    <strong>{effectiveSelectedJob.reasoningEffort}</strong>
                   </div>
                 )}
                 <div className="settings-meta-chip">
                   <span>阶段</span>
-                  <strong>{props.selectedJob.stage ?? 'queued'}</strong>
+                  <strong>{effectiveSelectedJob.stage ?? 'queued'}</strong>
                 </div>
               </div>
 
-              {'promptPreview' in props.selectedJob ? (
+              {'promptPreview' in effectiveSelectedJob ? (
                 <div className="prompt-editor-card">
                   <span>Prompt</span>
                   <textarea
@@ -431,25 +526,25 @@ export function JobsDrawer(props: {
                 <div className="control-empty">这个任务类型没有可编辑 prompt。</div>
               )}
 
-              {'liveText' in props.selectedJob && props.selectedJob.liveText && (
+              {'liveText' in effectiveSelectedJob && effectiveSelectedJob.liveText && (
                 <div className="prompt-editor-card">
                   <span>实时输出</span>
-                  <div className="job-live-preview">{props.selectedJob.liveText}</div>
+                  <div className="job-live-preview">{effectiveSelectedJob.liveText}</div>
                 </div>
               )}
 
-              {'liveLogs' in props.selectedJob && props.selectedJob.liveLogs && props.selectedJob.liveLogs.length > 0 && (
+              {'liveLogs' in effectiveSelectedJob && effectiveSelectedJob.liveLogs && effectiveSelectedJob.liveLogs.length > 0 && (
                 <div className="job-log-list tall">
-                  {props.selectedJob.liveLogs.slice(-24).map((line, index) => (
-                    <div key={`${props.selectedJob!.id}-live-log-${index}`} className="job-log-line">{line}</div>
+                  {effectiveSelectedJob.liveLogs.slice(-24).map((line, index) => (
+                    <div key={`${effectiveSelectedJob.id}-live-log-${index}`} className="job-log-line">{line}</div>
                   ))}
                 </div>
               )}
 
-              {'logs' in props.selectedJob && props.selectedJob.logs.length > 0 && (
+              {'logs' in effectiveSelectedJob && effectiveSelectedJob.logs.length > 0 && (
                 <div className="job-log-list tall">
-                  {props.selectedJob.logs.slice(-24).map((line, index) => (
-                    <div key={`${props.selectedJob!.id}-log-${index}`} className="job-log-line">{line}</div>
+                  {effectiveSelectedJob.logs.slice(-24).map((line, index) => (
+                    <div key={`${effectiveSelectedJob.id}-log-${index}`} className="job-log-line">{line}</div>
                   ))}
                 </div>
               )}
@@ -785,6 +880,191 @@ function TypographySlider(props: {
       />
     </label>
   )
+}
+
+type InterviewerGroup = {
+  id: string
+  jobs: InterviewerAgentJob[]
+  kind: 'interviewer_group'
+  latestJob: InterviewerAgentJob
+  questionId: string
+  title: string
+}
+
+type JobEntry = AgentJob | InterviewerGroup
+type InterviewerAgentJob = Extract<AgentJob, { kind: 'interviewer' }>
+
+function buildJobEntries(jobs: AgentJob[], selectedJob: AgentJob | null) {
+  const interviewerJobs = jobs.filter(isInterviewerJob)
+  const otherJobs = jobs.filter((job) => !isInterviewerJob(job))
+  const interviewerGroups = new Map<string, InterviewerAgentJob[]>()
+
+  for (const job of interviewerJobs) {
+    const current = interviewerGroups.get(job.questionId) ?? []
+    current.push(job)
+    interviewerGroups.set(job.questionId, current)
+  }
+
+  const grouped = [...interviewerGroups.entries()].map(([questionId, groupJobs]) => {
+    const sorted = groupJobs.slice().sort((left, right) => right.startedAt.localeCompare(left.startedAt, 'en'))
+    const latestJob = sorted[0]
+    return {
+      id: `interviewer-group:${questionId}`,
+      jobs: sorted,
+      kind: 'interviewer_group' as const,
+      latestJob,
+      questionId,
+      title: latestJob.questionText?.trim() || latestJob.seedFollowUp || '压力面'
+    }
+  })
+
+  const runningEntries = [
+    ...otherJobs.filter((job) => job.status === 'queued' || job.status === 'running'),
+    ...grouped.filter((group) => group.jobs.some((job) => job.status === 'queued' || job.status === 'running'))
+  ].sort(compareJobEntries)
+
+  const historyEntries = [
+    ...otherJobs.filter((job) => job.status !== 'queued' && job.status !== 'running'),
+    ...grouped.filter((group) => group.jobs.every((job) => job.status !== 'queued' && job.status !== 'running'))
+  ].sort(compareJobEntries)
+
+  const interviewerGroup = selectedJob && isInterviewerJob(selectedJob)
+    ? grouped.find((group) => group.questionId === selectedJob.questionId) ?? null
+    : null
+
+  return {
+    historyEntries,
+    interviewerGroup,
+    runningEntries
+  }
+}
+
+function compareJobEntries(left: JobEntry, right: JobEntry) {
+  return readJobEntryStartedAt(right).localeCompare(readJobEntryStartedAt(left), 'en')
+}
+
+function readJobEntryStartedAt(entry: JobEntry) {
+  return isInterviewerGroup(entry) ? entry.latestJob.startedAt : entry.startedAt
+}
+
+function isInterviewerJob(job: AgentJob): job is InterviewerAgentJob {
+  return job.kind === 'interviewer'
+}
+
+function isInterviewerGroup(entry: JobEntry): entry is InterviewerGroup {
+  return 'kind' in entry && entry.kind === 'interviewer_group'
+}
+
+function renderJobEntryCard(
+  entry: JobEntry,
+  selectedInterviewerGroup: InterviewerGroup | null,
+  selectedJob: AgentJob | null,
+  onSelectJob: (jobId: string) => void,
+  compact = false
+) {
+  if (isInterviewerGroup(entry)) {
+    const latest = entry.latestJob
+    const isActive = selectedInterviewerGroup?.questionId === entry.questionId
+    const hasRunning = entry.jobs.some((job) => job.status === 'running')
+    const hasQueued = entry.jobs.some((job) => job.status === 'queued')
+    const stackStatus = hasRunning ? 'running' : hasQueued ? 'queued' : latest.status
+
+    return (
+      <button
+        key={entry.id}
+        className={`agent-job-card interviewer-job-stack ${compact ? 'compact' : ''} ${isActive ? 'active' : ''}`}
+        onClick={() => onSelectJob(latest.id)}
+      >
+        <div className="agent-job-stack-layers" aria-hidden="true">
+          <span />
+          <span />
+        </div>
+        <div className="agent-job-top">
+          <span className="pill subtle kind-interviewer">面试官</span>
+          <span className={`pill ${stackStatus === 'ready' ? 'success' : ''}`}>{entry.jobs.length} 轮</span>
+        </div>
+        <strong>{entry.title}</strong>
+        <p>{latest.summary ?? latest.seedFollowUp ?? '面试官压力面任务'}</p>
+        <small>{`${describeJobStatus(stackStatus)} · ${latest.stage ?? 'queued'}`}</small>
+      </button>
+    )
+  }
+
+  return (
+    <button
+      key={entry.id}
+      className={`agent-job-card ${compact ? 'compact' : ''} ${selectedJob?.id === entry.id ? 'active' : ''}`}
+      onClick={() => onSelectJob(entry.id)}
+    >
+      <div className="agent-job-top">
+        <span className={`pill subtle kind-${entry.kind}`}>{describeJobKind(entry.kind)}</span>
+        <span className={`pill ${entry.status === 'ready' ? 'success' : ''}`}>{describeJobStatus(entry.status)}</span>
+      </div>
+      <strong>{readJobTitle(entry)}</strong>
+      <p>{entry.summary ?? readJobSummary(entry)}</p>
+      {!compact && <small>{entry.stage ?? 'queued'}</small>}
+    </button>
+  )
+}
+
+function InterviewerHistoryReplyCard(props: {
+  reply: InterviewerReply
+}) {
+  return (
+    <div className="console-assistant-card interviewer-history-reply-card">
+      <div className="interviewer-history-reply-head">
+        <span className={`console-mode-pill interviewer-level ${props.reply.pressure_level}`}>
+          {describePressureLevel(props.reply.pressure_level)}
+        </span>
+        <strong>{props.reply.headline}</strong>
+      </div>
+      <p className="console-summary">{props.reply.summary}</p>
+      {props.reply.assessment && (
+        <div className="interviewer-assessment-box compact">
+          <span>点评</span>
+          <p>{props.reply.assessment}</p>
+        </div>
+      )}
+      <div className="console-markdown interviewer-markdown">
+        <ReactMarkdown
+          rehypePlugins={[rehypeKatex]}
+          remarkPlugins={[remarkGfm, remarkMath]}
+        >
+          {normalizeMarkdownForRender(props.reply.interviewer_markdown)}
+        </ReactMarkdown>
+      </div>
+      {props.reply.follow_ups.length > 0 && (
+        <div className="console-follow-up-row">
+          {props.reply.follow_ups.map((item) => (
+            <div key={item} className="console-follow-up-chip interviewer-chip">{item}</div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function formatJobStartedAt(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return value
+  }
+  return date.toLocaleString('zh-CN', {
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    month: '2-digit'
+  })
+}
+
+function describePressureLevel(level: InterviewerReply['pressure_level']) {
+  if (level === 'cornering') {
+    return '压墙追问'
+  }
+  if (level === 'pressure') {
+    return '高压深挖'
+  }
+  return '开场施压'
 }
 
 function describeJobKind(kind: AgentJob['kind']) {

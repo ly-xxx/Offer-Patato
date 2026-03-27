@@ -150,6 +150,11 @@ export type CodexUsage = {
   outputTokens?: number
 }
 
+export type ConversationTurn = {
+  content: string
+  role: 'assistant' | 'user'
+}
+
 export type GeneratedAnswer = {
   citations: Array<{ kind: string; label: string; path: string }>
   id: string
@@ -394,6 +399,8 @@ export type CodexConsoleJob = {
 }
 
 export type InterviewerJob = {
+  candidateAnswer?: string
+  conversation: ConversationTurn[]
   error?: string
   finishedAt?: string
   id: string
