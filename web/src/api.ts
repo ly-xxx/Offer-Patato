@@ -312,6 +312,34 @@ function normalizeDocumentData(value: unknown): DocumentData {
   }
 }
 
+function matchesQuery(value: string | null | undefined, query: string) {
+  return typeof value === 'string' && value.toLowerCase().includes(query)
+}
+
+function filterDemoSearchResponse(response: SearchResponse, query: string): SearchResponse {
+  const normalizedQuery = query.trim().toLowerCase()
+  if (!normalizedQuery) {
+    return {
+      questions: [],
+      sections: []
+    }
+  }
+
+  return {
+    questions: response.questions.filter((item) => (
+      matchesQuery(item.displayText, normalizedQuery)
+      || matchesQuery(item.text, normalizedQuery)
+      || matchesQuery(item.translatedText, normalizedQuery)
+    )),
+    sections: response.sections.filter((item) => (
+      matchesQuery(item.content, normalizedQuery)
+      || matchesQuery(item.documentTitle, normalizedQuery)
+      || matchesQuery(item.heading, normalizedQuery)
+      || matchesQuery(item.relPath, normalizedQuery)
+    ))
+  }
+}
+
 function normalizeCodexUsage(value: unknown) {
   const raw = readRecord(value)
   const usage = {
@@ -566,6 +594,11 @@ export function fetchDocument(documentId: string) {
 
 export function fetchSearch(query: string) {
   return request<SearchResponse>(`/api/search?q=${encodeURIComponent(query)}`)
+    .then((response) => (
+      isDemoMode()
+        ? filterDemoSearchResponse(response, query)
+        : response
+    ))
 }
 
 export function fetchWorkProjects() {

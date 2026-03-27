@@ -6,6 +6,7 @@ import {
   GitBranch,
   Palette,
   Play,
+  Plus,
   RefreshCw,
   Save,
   Settings2,
@@ -48,6 +49,7 @@ export function SettingsDrawer(props: {
   settings: SourcesSettingsSnapshot | null
   themeId: string
   themes: Array<{
+    group: string
     hint: string
     id: string
     label: string
@@ -56,43 +58,72 @@ export function SettingsDrawer(props: {
   typography: UiTypographySettings
 }) {
   const draft = props.draftConfig
+  const themeGroups = props.themes.reduce<Record<string, typeof props.themes>>((accumulator, theme) => {
+    if (!accumulator[theme.group]) {
+      accumulator[theme.group] = []
+    }
+    accumulator[theme.group].push(theme)
+    return accumulator
+  }, {})
 
   return (
-    <OverlayDrawer icon={<Settings2 size={18} />} onClose={props.onClose} open={props.open} title="设置">
+    <OverlayDrawer
+      description="源 / 外观 / 索引"
+      icon={<Settings2 size={18} />}
+      onClose={props.onClose}
+      open={props.open}
+      title="设置"
+    >
       {!draft || !props.settings ? (
         <div className="control-empty">正在载入来源配置…</div>
       ) : (
         <div className="control-panel-body">
           <section className="control-card">
-            <div className="control-card-head">
-              <div>
+            <div className="control-card-head compact">
+              <div className="section-headline">
+                <span className="section-head-icon" aria-hidden="true">
+                  <FolderInput size={15} />
+                </span>
                 <strong>来源</strong>
-                <p>主线、面经、mywork</p>
               </div>
-              <button className="ghost-button" onClick={props.onResetDefaults}>恢复默认</button>
+              <div className="head-icon-actions">
+                <button
+                  aria-label="恢复默认来源配置"
+                  className="ghost-button icon-button"
+                  onClick={props.onResetDefaults}
+                  title="恢复默认"
+                  type="button"
+                >
+                  <RefreshCw size={15} />
+                </button>
+              </div>
             </div>
 
-            <div className="settings-tip-grid compact">
-              <div className="settings-tip-card">
-                <strong>Codex</strong>
-                <p>先确认本机可用 `codex-cli`。</p>
+            <div className="settings-meta-grid compact">
+              <div className="settings-meta-chip">
+                <span>主线</span>
+                <strong>{props.settings.discoveredSources.guides.length}</strong>
               </div>
-              <div className="settings-tip-card">
-                <strong>自动发现</strong>
-                <p>{props.settings.discoveredSources.guides.length} 个文档源 · {props.settings.discoveredSources.questionBanks.length} 个题库源</p>
+              <div className="settings-meta-chip">
+                <span>题库</span>
+                <strong>{props.settings.discoveredSources.questionBanks.length}</strong>
+              </div>
+              <div className="settings-meta-chip wide">
+                <span>mywork</span>
+                <strong>{draft.myWork.path ?? draft.myWork.url ?? draft.myWork.id}</strong>
               </div>
             </div>
 
             <SourceGroupEditor
               items={draft.guides}
-              label="主线文档"
+              label="主线"
               onChange={(items) => props.onDraftChange({ ...draft, guides: items })}
               templateKind="guide"
             />
 
             <SourceGroupEditor
               items={draft.questionBanks}
-              label="面经题库"
+              label="题库"
               onChange={(items) => props.onDraftChange({ ...draft, questionBanks: items })}
               templateKind="question_bank"
             />
@@ -103,77 +134,96 @@ export function SettingsDrawer(props: {
               onChange={(myWork) => props.onDraftChange({ ...draft, myWork })}
             />
 
-            <div className="settings-actions">
+            <div className="settings-actions compact">
               <button className="ghost-button" disabled={props.busy} onClick={props.onSave}>
                 <Save size={16} />
-                只保存配置
+                保存
               </button>
               <button className="primary-button" disabled={props.busy} onClick={props.onStartBuild}>
                 <Wand2 size={16} />
-                保存并重建索引
+                重建
               </button>
             </div>
           </section>
 
           <section className="control-card">
-            <div className="control-card-head">
-              <div>
+            <div className="control-card-head compact">
+              <div className="section-headline">
+                <span className="section-head-icon" aria-hidden="true">
+                  <Palette size={15} />
+                </span>
                 <strong>外观</strong>
-                <p>主题和字号只影响当前浏览器。</p>
               </div>
             </div>
 
-            <div className="theme-picker-grid">
-              {props.themes.map((theme) => (
-                <button
-                  key={theme.id}
-                  className={`theme-picker-card ${props.themeId === theme.id ? 'active' : ''}`}
-                  onClick={() => props.onThemeChange(theme.id)}
-                >
-                  <div className="theme-picker-head">
-                    <div className="theme-picker-label">
-                      <Palette size={14} />
-                      <strong>{theme.label}</strong>
-                    </div>
-                    <span>{theme.hint}</span>
-                  </div>
-                  <div className="theme-swatch-row">
-                    {theme.swatches.map((color) => (
-                      <span key={`${theme.id}-${color}`} className="theme-swatch-dot" style={{ background: color }} />
+            <div className="theme-groups">
+              {Object.entries(themeGroups).map(([groupLabel, themes]) => (
+                <section key={groupLabel} className="theme-group">
+                  <div className="theme-group-title">{groupLabel}</div>
+                  <div className="theme-picker-grid">
+                    {themes.map((theme) => (
+                      <button
+                        key={theme.id}
+                        className={`theme-picker-card ${props.themeId === theme.id ? 'active' : ''}`}
+                        onClick={() => props.onThemeChange(theme.id)}
+                      >
+                        <div
+                          className="theme-preview-strip"
+                          style={{
+                            background: `linear-gradient(135deg, ${theme.swatches[0]}, ${theme.swatches[1]} 52%, ${theme.swatches[2]})`
+                          }}
+                        />
+                        <div className="theme-picker-head">
+                          <div className="theme-picker-label">
+                            <Palette size={14} />
+                            <strong>{theme.label}</strong>
+                          </div>
+                          <span>{theme.hint}</span>
+                        </div>
+                        <div className="theme-swatch-row">
+                          {theme.swatches.map((color) => (
+                            <span key={`${theme.id}-${color}`} className="theme-swatch-dot" style={{ background: color }} />
+                          ))}
+                        </div>
+                      </button>
                     ))}
                   </div>
-                </button>
+                </section>
               ))}
             </div>
 
             <TypographySlider
+              icon="Aa"
               label="正文"
-              max={24}
-              min={16}
+              max={22}
+              min={15.5}
               onChange={(value) => props.onTypographyChange({ ...props.typography, docFontSize: value })}
               step={0.5}
               value={props.typography.docFontSize}
             />
             <TypographySlider
+              icon="H"
               label="标题倍率"
-              max={1.35}
-              min={0.92}
+              max={1.24}
+              min={0.9}
               onChange={(value) => props.onTypographyChange({ ...props.typography, docHeadingScale: value })}
               step={0.01}
               value={props.typography.docHeadingScale}
             />
             <TypographySlider
+              icon="≣"
               label="侧边栏"
-              max={17}
-              min={12}
+              max={16}
+              min={11.5}
               onChange={(value) => props.onTypographyChange({ ...props.typography, sidebarFontSize: value })}
               step={0.5}
               value={props.typography.sidebarFontSize}
             />
             <TypographySlider
+              icon="✦"
               label="答案卡片"
-              max={20}
-              min={13}
+              max={18}
+              min={12.5}
               onChange={(value) => props.onTypographyChange({ ...props.typography, answerFontSize: value })}
               step={0.5}
               value={props.typography.answerFontSize}
@@ -182,10 +232,12 @@ export function SettingsDrawer(props: {
 
           {props.indexJob && (
             <section className="control-card mixer-card">
-              <div className="control-card-head">
-                <div>
+              <div className="control-card-head compact">
+                <div className="section-headline">
+                  <span className="section-head-icon" aria-hidden="true">
+                    <Wand2 size={15} />
+                  </span>
                   <strong>索引</strong>
-                  <p>{props.indexJob.summary}</p>
                 </div>
                 <span className={`pill ${props.indexJob.status === 'ready' ? 'success' : ''}`}>
                   {describeJobStatus(props.indexJob.status)}
@@ -244,13 +296,21 @@ export function JobsDrawer(props: {
   const history = props.jobs.filter((job) => job.status !== 'queued' && job.status !== 'running')
 
   return (
-    <OverlayDrawer icon={<Bot size={18} />} onClose={props.onClose} open={props.open} title="任务">
+    <OverlayDrawer
+      description={`${running.length} 运行 · ${history.length} 完成`}
+      icon={<Bot size={18} />}
+      onClose={props.onClose}
+      open={props.open}
+      title="任务"
+    >
       <div className="control-panel-body two-column">
         <section className="control-card">
-          <div className="control-card-head">
-            <div>
+          <div className="control-card-head compact">
+            <div className="section-headline">
+              <span className="section-head-icon" aria-hidden="true">
+                <Bot size={15} />
+              </span>
               <strong>运行中</strong>
-              <p>{running.length} 个任务</p>
             </div>
           </div>
 
@@ -301,10 +361,12 @@ export function JobsDrawer(props: {
         <section className="control-card">
           {props.selectedJob ? (
             <>
-              <div className="control-card-head">
-                <div>
+              <div className="control-card-head compact">
+                <div className="section-headline">
+                  <span className="section-head-icon" aria-hidden="true">
+                    <Bot size={15} />
+                  </span>
                   <strong>{readJobTitle(props.selectedJob)}</strong>
-                  <p>{props.selectedJob.summary ?? readJobSummary(props.selectedJob)}</p>
                 </div>
                 <div className="job-action-row">
                   {(props.selectedJob.status === 'queued' || props.selectedJob.status === 'running') && (
@@ -490,7 +552,7 @@ export function OverlayDrawer(props: DrawerProps) {
             <div className="control-drawer-head">
               <div className="drawer-head-copy">
                 <div className="drawer-head-title">
-                  {props.icon}
+                  {props.icon ? <span className="drawer-head-icon-shell">{props.icon}</span> : null}
                   <strong>{props.title}</strong>
                 </div>
                 {props.description ? (
@@ -499,7 +561,7 @@ export function OverlayDrawer(props: DrawerProps) {
               </div>
               <div className="drawer-head-actions">
                 {props.headerActions}
-                <button className="ghost-button icon-button" onClick={props.onClose}>
+                <button className="ghost-button icon-button drawer-close-button" onClick={props.onClose} type="button">
                   <X size={16} />
                 </button>
               </div>
@@ -523,7 +585,8 @@ function SourceGroupEditor(props: {
       <div className="source-group-head">
         <span>{props.label}</span>
         <button
-          className="ghost-button"
+          aria-label={`添加${props.label}`}
+          className="ghost-button icon-button"
           onClick={() => props.onChange([
             ...props.items,
             {
@@ -534,8 +597,9 @@ function SourceGroupEditor(props: {
               type: 'local'
             }
           ])}
+          title={`添加${props.label}`}
         >
-          + 添加
+          <Plus size={15} />
         </button>
       </div>
 
@@ -685,6 +749,7 @@ function WorkSourceEditor(props: {
 }
 
 function TypographySlider(props: {
+  icon: string
   label: string
   max: number
   min: number
@@ -693,9 +758,12 @@ function TypographySlider(props: {
   value: number
 }) {
   return (
-    <label className="typography-slider">
+    <label className="typography-slider" title={props.label}>
       <div className="typography-slider-head">
-        <span>{props.label}</span>
+        <div className="typography-slider-label">
+          <span className="slider-glyph" aria-hidden="true">{props.icon}</span>
+          <span>{props.label}</span>
+        </div>
         <strong>{props.value}</strong>
       </div>
       <input

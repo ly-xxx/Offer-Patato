@@ -102,7 +102,16 @@ type BrowserNavState = {
 type ReasoningEffort = 'low' | 'medium' | 'high' | 'xhigh'
 type RelatedQuestion = DocumentData['sections'][number]['relatedQuestions'][number]
 type SidebarTab = 'documents' | 'interviews' | 'mywork'
-type WorkspaceThemeId = 'mist' | 'paper' | 'sage' | 'slate'
+type WorkspaceThemeId =
+  | 'mist'
+  | 'paper'
+  | 'sage'
+  | 'slate'
+  | 'atelier'
+  | 'champagne'
+  | 'bordeaux'
+  | 'mocha'
+  | 'mercury'
 type WorkspaceUiState = {
   currentDocumentId: string | null
   currentInterviewQuestionId: string | null
@@ -117,6 +126,7 @@ type SidebarResizeState = {
   startX: number
 }
 type WorkspaceTheme = {
+  group: string
   hint: string
   id: WorkspaceThemeId
   label: string
@@ -224,14 +234,15 @@ const DEFAULT_UI_STATE: WorkspaceUiState = {
   sidebarTab: 'documents',
   themeId: 'mist',
   typography: {
-    answerFontSize: 15.5,
-    docFontSize: 18,
-    docHeadingScale: 1.08,
-    sidebarFontSize: 13.5
+    answerFontSize: 13.5,
+    docFontSize: 17,
+    docHeadingScale: 1,
+    sidebarFontSize: 12.5
   }
 }
 const WORKSPACE_THEMES: WorkspaceTheme[] = [
   {
+    group: '冷调',
     id: 'mist',
     label: '雾青',
     hint: '冷雾青灰',
@@ -257,6 +268,33 @@ const WORKSPACE_THEMES: WorkspaceTheme[] = [
     }
   },
   {
+    group: '冷调',
+    id: 'atelier',
+    label: '墨铂',
+    hint: '黑白钴蓝',
+    swatches: ['#f5f6f8', '#a8b2c5', '#3458b3'],
+    vars: {
+      '--accent': '#4769bf',
+      '--accent-faint': 'rgba(71, 105, 191, 0.12)',
+      '--accent-strong': '#2f4d98',
+      '--app-background': 'radial-gradient(circle at top left, rgba(53, 72, 113, 0.12), transparent 34%), radial-gradient(circle at top right, rgba(110, 141, 221, 0.16), transparent 32%), linear-gradient(180deg, #f7f8fb, #eef1f6 44%, #fbfcfe)',
+      '--border-soft': 'rgba(96, 105, 123, 0.14)',
+      '--border-strong': 'rgba(67, 88, 144, 0.24)',
+      '--control-surface': 'linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(244, 246, 250, 0.97))',
+      '--panel-surface': 'linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 246, 250, 0.94))',
+      '--panel-surface-strong': 'linear-gradient(180deg, rgba(253, 254, 255, 0.98), rgba(239, 243, 249, 0.96))',
+      '--primary-from': '#2d4579',
+      '--primary-to': '#5978cb',
+      '--shadow-rgb': '19, 25, 37',
+      '--surface-muted': 'rgba(244, 246, 250, 0.94)',
+      '--surface-soft': 'rgba(255, 255, 255, 0.9)',
+      '--surface-subtle': 'rgba(239, 243, 249, 0.95)',
+      '--text': '#151c27',
+      '--muted': '#5f6876'
+    }
+  },
+  {
+    group: '暖调',
     id: 'paper',
     label: '砂页',
     hint: '暖白纸感',
@@ -282,6 +320,33 @@ const WORKSPACE_THEMES: WorkspaceTheme[] = [
     }
   },
   {
+    group: '暖调',
+    id: 'champagne',
+    label: '香槟',
+    hint: '象牙黄铜',
+    swatches: ['#fbf4ea', '#d8bd94', '#8b6843'],
+    vars: {
+      '--accent': '#b78d56',
+      '--accent-faint': 'rgba(183, 141, 86, 0.14)',
+      '--accent-strong': '#8b6843',
+      '--app-background': 'radial-gradient(circle at top left, rgba(225, 197, 150, 0.16), transparent 34%), radial-gradient(circle at top right, rgba(239, 225, 196, 0.18), transparent 32%), linear-gradient(180deg, #fcf8f1, #f6f0e6 44%, #fdfaf5)',
+      '--border-soft': 'rgba(146, 118, 82, 0.14)',
+      '--border-strong': 'rgba(163, 128, 79, 0.24)',
+      '--control-surface': 'linear-gradient(180deg, rgba(255, 252, 248, 0.98), rgba(248, 242, 234, 0.97))',
+      '--panel-surface': 'linear-gradient(180deg, rgba(255, 252, 248, 0.96), rgba(248, 242, 234, 0.94))',
+      '--panel-surface-strong': 'linear-gradient(180deg, rgba(255, 253, 250, 0.98), rgba(245, 238, 228, 0.96))',
+      '--primary-from': '#94704a',
+      '--primary-to': '#c79a5d',
+      '--shadow-rgb': '57, 40, 26',
+      '--surface-muted': 'rgba(250, 245, 238, 0.94)',
+      '--surface-soft': 'rgba(255, 252, 248, 0.9)',
+      '--surface-subtle': 'rgba(247, 240, 231, 0.95)',
+      '--text': '#31261d',
+      '--muted': '#7b6756'
+    }
+  },
+  {
+    group: '冷调',
     id: 'sage',
     label: '松雾',
     hint: '灰绿矿物',
@@ -307,6 +372,33 @@ const WORKSPACE_THEMES: WorkspaceTheme[] = [
     }
   },
   {
+    group: '特调',
+    id: 'bordeaux',
+    label: '酒绒',
+    hint: '石膏酒红',
+    swatches: ['#fcf1f3', '#cb9da8', '#7d3950'],
+    vars: {
+      '--accent': '#a05d73',
+      '--accent-faint': 'rgba(160, 93, 115, 0.14)',
+      '--accent-strong': '#7d3950',
+      '--app-background': 'radial-gradient(circle at top left, rgba(222, 167, 184, 0.18), transparent 34%), radial-gradient(circle at top right, rgba(242, 222, 230, 0.18), transparent 32%), linear-gradient(180deg, #fdf6f7, #f8edf0 44%, #fffafb)',
+      '--border-soft': 'rgba(132, 94, 108, 0.14)',
+      '--border-strong': 'rgba(143, 74, 96, 0.24)',
+      '--control-surface': 'linear-gradient(180deg, rgba(255, 252, 253, 0.98), rgba(249, 241, 244, 0.97))',
+      '--panel-surface': 'linear-gradient(180deg, rgba(255, 252, 253, 0.96), rgba(249, 241, 244, 0.94))',
+      '--panel-surface-strong': 'linear-gradient(180deg, rgba(255, 254, 254, 0.98), rgba(246, 236, 241, 0.96))',
+      '--primary-from': '#854358',
+      '--primary-to': '#bc7289',
+      '--shadow-rgb': '52, 31, 41',
+      '--surface-muted': 'rgba(251, 245, 247, 0.94)',
+      '--surface-soft': 'rgba(255, 252, 253, 0.9)',
+      '--surface-subtle': 'rgba(248, 239, 243, 0.95)',
+      '--text': '#2f2027',
+      '--muted': '#7a6670'
+    }
+  },
+  {
+    group: '冷调',
     id: 'slate',
     label: '石墨',
     hint: '云灰蓝调',
@@ -329,6 +421,58 @@ const WORKSPACE_THEMES: WorkspaceTheme[] = [
       '--surface-subtle': 'rgba(237, 243, 252, 0.95)',
       '--text': '#1d2736',
       '--muted': '#667384'
+    }
+  },
+  {
+    group: '冷调',
+    id: 'mercury',
+    label: '汞银',
+    hint: '银灰电蓝',
+    swatches: ['#f4f5f7', '#b2bac5', '#536e96'],
+    vars: {
+      '--accent': '#6984ae',
+      '--accent-faint': 'rgba(105, 132, 174, 0.14)',
+      '--accent-strong': '#4b658d',
+      '--app-background': 'radial-gradient(circle at top left, rgba(156, 168, 189, 0.16), transparent 34%), radial-gradient(circle at top right, rgba(197, 207, 222, 0.18), transparent 32%), linear-gradient(180deg, #f7f8fa, #eef1f4 44%, #fbfcfd)',
+      '--border-soft': 'rgba(101, 114, 133, 0.14)',
+      '--border-strong': 'rgba(82, 103, 137, 0.24)',
+      '--control-surface': 'linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 247, 250, 0.97))',
+      '--panel-surface': 'linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 247, 250, 0.94))',
+      '--panel-surface-strong': 'linear-gradient(180deg, rgba(253, 254, 255, 0.98), rgba(241, 244, 248, 0.96))',
+      '--primary-from': '#536d93',
+      '--primary-to': '#8ea4c8',
+      '--shadow-rgb': '23, 31, 43',
+      '--surface-muted': 'rgba(243, 246, 249, 0.94)',
+      '--surface-soft': 'rgba(255, 255, 255, 0.9)',
+      '--surface-subtle': 'rgba(239, 243, 248, 0.95)',
+      '--text': '#17212d',
+      '--muted': '#667383'
+    }
+  },
+  {
+    group: '暖调',
+    id: 'mocha',
+    label: '摩卡',
+    hint: '燕麦可可',
+    swatches: ['#f7f0e8', '#c3a795', '#725245'],
+    vars: {
+      '--accent': '#9f7a68',
+      '--accent-faint': 'rgba(159, 122, 104, 0.14)',
+      '--accent-strong': '#725245',
+      '--app-background': 'radial-gradient(circle at top left, rgba(212, 184, 164, 0.16), transparent 34%), radial-gradient(circle at top right, rgba(237, 218, 204, 0.18), transparent 32%), linear-gradient(180deg, #fbf7f2, #f2ebe4 44%, #fdfaf7)',
+      '--border-soft': 'rgba(121, 96, 84, 0.14)',
+      '--border-strong': 'rgba(132, 95, 78, 0.24)',
+      '--control-surface': 'linear-gradient(180deg, rgba(255, 252, 249, 0.98), rgba(247, 241, 235, 0.97))',
+      '--panel-surface': 'linear-gradient(180deg, rgba(255, 252, 249, 0.96), rgba(247, 241, 235, 0.94))',
+      '--panel-surface-strong': 'linear-gradient(180deg, rgba(255, 253, 251, 0.98), rgba(244, 236, 228, 0.96))',
+      '--primary-from': '#7a5a49',
+      '--primary-to': '#b58b75',
+      '--shadow-rgb': '48, 35, 29',
+      '--surface-muted': 'rgba(248, 242, 236, 0.94)',
+      '--surface-soft': 'rgba(255, 252, 249, 0.9)',
+      '--surface-subtle': 'rgba(245, 238, 231, 0.95)',
+      '--text': '#2c221e',
+      '--muted': '#74645d'
     }
   }
 ]
@@ -2649,6 +2793,7 @@ function App() {
       <FloatingCodexWindow
         autoReferenceCurrentDoc={autoReferenceCurrentDoc}
         currentDocument={activeDocument}
+        demoMode={demoMode}
         defaultDockLeft={codexDockMetrics.defaultLeft ?? undefined}
         defaultDockTop={codexDockMetrics.top}
         dockMainLeft={codexDockMetrics.mainLeft ?? undefined}
@@ -2710,6 +2855,7 @@ function App() {
         settings={sourcesSettings}
         themeId={workspaceUi.themeId}
         themes={WORKSPACE_THEMES.map((theme) => ({
+          group: theme.group,
           hint: theme.hint,
           id: theme.id,
           label: theme.label,
@@ -4389,6 +4535,14 @@ function readWorkspaceUiState(): WorkspaceUiState {
       return DEFAULT_UI_STATE
     }
     const parsed = JSON.parse(raw) as Partial<WorkspaceUiState>
+    const storedTypography = parsed.typography
+    const usesLegacyDefaultTypography = Boolean(
+      storedTypography
+      && storedTypography.answerFontSize === 15.5
+      && storedTypography.docFontSize === 18
+      && storedTypography.docHeadingScale === 1.08
+      && storedTypography.sidebarFontSize === 13.5
+    )
     return {
       currentDocumentId: typeof parsed.currentDocumentId === 'string' ? parsed.currentDocumentId : DEFAULT_UI_STATE.currentDocumentId,
       currentInterviewQuestionId: typeof parsed.currentInterviewQuestionId === 'string'
@@ -4402,12 +4556,14 @@ function readWorkspaceUiState(): WorkspaceUiState {
           ? 'interviews'
           : 'documents',
       themeId: isWorkspaceThemeId(parsed.themeId) ? parsed.themeId : DEFAULT_UI_STATE.themeId,
-      typography: {
-        answerFontSize: clampNumber(parsed.typography?.answerFontSize, 13, 20, DEFAULT_UI_STATE.typography.answerFontSize),
-        docFontSize: clampNumber(parsed.typography?.docFontSize, 16, 24, DEFAULT_UI_STATE.typography.docFontSize),
-        docHeadingScale: clampNumber(parsed.typography?.docHeadingScale, 0.92, 1.35, DEFAULT_UI_STATE.typography.docHeadingScale),
-        sidebarFontSize: clampNumber(parsed.typography?.sidebarFontSize, 12, 17, DEFAULT_UI_STATE.typography.sidebarFontSize)
-      }
+      typography: usesLegacyDefaultTypography
+        ? DEFAULT_UI_STATE.typography
+        : {
+            answerFontSize: clampNumber(parsed.typography?.answerFontSize, 12.5, 18, DEFAULT_UI_STATE.typography.answerFontSize),
+            docFontSize: clampNumber(parsed.typography?.docFontSize, 15.5, 22, DEFAULT_UI_STATE.typography.docFontSize),
+            docHeadingScale: clampNumber(parsed.typography?.docHeadingScale, 0.9, 1.24, DEFAULT_UI_STATE.typography.docHeadingScale),
+            sidebarFontSize: clampNumber(parsed.typography?.sidebarFontSize, 11.5, 16, DEFAULT_UI_STATE.typography.sidebarFontSize)
+          }
     }
   } catch {
     return DEFAULT_UI_STATE

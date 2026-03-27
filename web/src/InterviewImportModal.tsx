@@ -162,6 +162,7 @@ export function InterviewImportModal(props: Props) {
 
   return (
     <OverlayDrawer
+      description="文本 / 截图 / OCR"
       icon={<ScanText size={18} />}
       onClose={() => {
         if (!props.busy) {
@@ -172,14 +173,16 @@ export function InterviewImportModal(props: Props) {
       open={props.open}
       title="添加面经"
     >
-          <div className="control-panel-body interview-import-body">
-            <section className="control-card">
-              <div className="control-card-head">
-                <div>
-                  <strong>添加面经</strong>
-                  <p>贴文本或贴截图，存成可索引的新面经源。</p>
-                </div>
-              </div>
+      <div className="control-panel-body interview-import-body">
+        <section className="control-card">
+          <div className="control-card-head compact">
+            <div className="section-headline">
+              <span className="section-head-icon" aria-hidden="true">
+                <ScanText size={15} />
+              </span>
+              <strong>导入</strong>
+            </div>
+          </div>
 
             <div className="import-method-row">
               <button
@@ -189,7 +192,7 @@ export function InterviewImportModal(props: Props) {
                 <ClipboardPaste size={16} />
                 <div>
                   <strong>粘贴文本</strong>
-                  <span>适合网页、聊天记录、笔记整理</span>
+                  <span>网页 / 聊天 / 笔记</span>
                 </div>
               </button>
 
@@ -200,7 +203,7 @@ export function InterviewImportModal(props: Props) {
                 <ScanText size={16} />
                 <div>
                   <strong>截图识别</strong>
-                  <span>粘贴截图或拖进图片，自动 OCR</span>
+                  <span>贴图 / 拖图 / OCR</span>
                 </div>
               </button>
             </div>
@@ -208,22 +211,22 @@ export function InterviewImportModal(props: Props) {
             <div className="import-meta-grid">
               <label className="import-mini-field">
                 <span>标题</span>
-                <input placeholder="可选，默认会自动取首行" value={title} onChange={(event) => setTitle(event.target.value)} />
+                <input placeholder="首行自动推断" value={title} onChange={(event) => setTitle(event.target.value)} />
               </label>
 
               <label className="import-mini-field">
                 <span><Building2 size={14} /> 公司</span>
-                <input placeholder="例如 OpenAI / 字节" value={company} onChange={(event) => setCompany(event.target.value)} />
+                <input placeholder="OpenAI / 字节" value={company} onChange={(event) => setCompany(event.target.value)} />
               </label>
 
               <label className="import-mini-field">
                 <span><UserRoundSearch size={14} /> 岗位</span>
-                <input placeholder="例如 LLM Engineer" value={role} onChange={(event) => setRole(event.target.value)} />
+                <input placeholder="LLM Engineer" value={role} onChange={(event) => setRole(event.target.value)} />
               </label>
 
               <label className="import-mini-field">
                 <span><CalendarDays size={14} /> 日期</span>
-                <input placeholder="例如 2026-03 / 2026-03-25" value={interviewDate} onChange={(event) => setInterviewDate(event.target.value)} />
+                <input placeholder="2026-03 / 2026-03-25" value={interviewDate} onChange={(event) => setInterviewDate(event.target.value)} />
               </label>
             </div>
 
@@ -240,14 +243,14 @@ export function InterviewImportModal(props: Props) {
                       <img alt="截图预览" src={imagePreview} />
                       <div className="screenshot-dropzone-copy">
                         <strong>{imageName || '截图预览'}</strong>
-                        <span>点按更换图片，或直接重新粘贴新截图</span>
+                        <span>点按更换，或直接重新粘贴</span>
                       </div>
                     </>
                   ) : (
                     <div className="screenshot-dropzone-copy centered">
                       <ImagePlus size={18} />
-                      <strong>粘贴截图，或点这里选择图片</strong>
-                      <span>支持截图拖入，识别后可继续人工修改</span>
+                      <strong>粘贴截图，或点按选图</strong>
+                      <span>支持拖入，识别后可手动修正</span>
                     </div>
                   )}
                 </button>
@@ -274,7 +277,7 @@ export function InterviewImportModal(props: Props) {
                   {imagePreview && (
                     <button className="ghost-button compact-retry-button" disabled={ocrStatus === 'running'} onClick={() => void runOcr(imagePreview)}>
                       <Sparkles size={14} />
-                      重新识别
+                      再识别
                     </button>
                   )}
                 </div>
@@ -286,11 +289,11 @@ export function InterviewImportModal(props: Props) {
             <div className="import-text-shell">
               <div className="import-text-head">
                 <strong>{method === 'screenshot' ? '识别结果' : '面经正文'}</strong>
-                <span>预计可提取 {questionCountEstimate} 道题</span>
+                <span>{questionCountEstimate} 题</span>
               </div>
               <textarea
                 className="import-textarea"
-                placeholder={method === 'screenshot' ? 'OCR 结果会落在这里，你可以顺手修正再保存。' : '把整段面经直接贴进来即可，问题和追问可以混在一起。'}
+                placeholder={method === 'screenshot' ? 'OCR 结果会落在这里，可直接修正后保存。' : '直接粘贴整段面经，题目和追问可混排。'}
                 value={content}
                 onChange={(event) => setContent(event.target.value)}
               />
@@ -309,11 +312,11 @@ export function InterviewImportModal(props: Props) {
               </button>
               <button className="primary-button" disabled={!canSubmit} onClick={() => void handleSubmit()}>
                 <Sparkles size={16} />
-                {props.busy ? '保存中…' : '保存并更新索引'}
+                {props.busy ? '导入中…' : '导入'}
               </button>
             </div>
-            </section>
-          </div>
+        </section>
+      </div>
     </OverlayDrawer>
   )
 }

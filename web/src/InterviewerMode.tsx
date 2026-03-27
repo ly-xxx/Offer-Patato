@@ -90,59 +90,33 @@ export function InterviewerModeDrawer(props: Props) {
       return
     }
 
+    jobStreamCleanupRef.current?.()
+    jobStreamCleanupRef.current = null
     sessionKeyRef.current = session.sessionKey
     currentJobRef.current = null
     setRunningJobId(null)
-    setMessages([
-      {
-        createdAt: new Date().toISOString(),
-        id: `assistant_boot_${session.sessionKey}`,
-        role: 'assistant',
-        state: 'running'
-      }
-    ])
+    setMessages([])
     setInput('')
-
-    void kickoffSession(session)
   }, [props.open, props.session])
 
-  const kickoffSession = async (session: InterviewerSession) => {
-    const messageId = `assistant_${Date.now()}`
-    setMessages([{
-      createdAt: new Date().toISOString(),
-      id: messageId,
-      role: 'assistant',
-      state: 'running'
-    }])
-
-    try {
-      const job = await startInterviewerJob({
-        conversation: [],
-        questionId: session.questionId,
-        reasoningEffort: props.reasoningEffort,
-        seedFollowUp: session.seedFollowUp
-      })
-
-      currentJobRef.current = {
-        jobId: job.id,
-        messageId,
-        sessionKey: session.sessionKey
-      }
-      setRunningJobId(job.id)
-      attachJobStream(job.id, messageId, session.sessionKey)
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      setMessages([{
-        createdAt: new Date().toISOString(),
-        error: message,
-        id: messageId,
-        role: 'assistant',
-        state: 'failed'
-      }])
-      setRunningJobId(null)
-      currentJobRef.current = null
+  useEffect(() => {
+    if (props.open && props.session) {
+      return
     }
-  }
+
+    const activeJobId = currentJobRef.current?.jobId
+    jobStreamCleanupRef.current?.()
+    jobStreamCleanupRef.current = null
+    currentJobRef.current = null
+    sessionKeyRef.current = null
+    setRunningJobId(null)
+    setInput('')
+    setMessages([])
+
+    if (activeJobId) {
+      void cancelInterviewerJob(activeJobId).catch(() => {})
+    }
+  }, [props.open, props.session])
 
   const handleSend = async () => {
     const session = props.session
@@ -292,16 +266,15 @@ export function InterviewerModeDrawer(props: Props) {
   }
 
   const handleReset = () => {
-    const session = props.session
-    if (!session || runningJobId) {
+    if (!props.session || runningJobId) {
       return
     }
-    sessionKeyRef.current = `${session.sessionKey}-reset-${Date.now()}`
-    const nextSession = {
-      ...session,
-      sessionKey: sessionKeyRef.current
-    }
-    void kickoffSession(nextSession)
+    jobStreamCleanupRef.current?.()
+    jobStreamCleanupRef.current = null
+    currentJobRef.current = null
+    setRunningJobId(null)
+    setMessages([])
+    setInput('')
   }
 
   const title = props.session?.questionTitle ?? '面试官模式'
@@ -364,7 +337,12 @@ export function InterviewerModeDrawer(props: Props) {
 
           <section className="control-card interviewer-chat-card">
             <div className="interviewer-message-list">
-              {messages.map((message) => (
+              {messages.length === 0 ? (
+                <div className="console-empty-state">
+                  <strong>先由你开口</strong>
+                  <p>先按真实面试的方式回答这道题。你一发出回答，刻薄面试官才会开始根据你的内容施压追问。</p>
+                </div>
+              ) : messages.map((message) => (
                 message.role === 'user'
                   ? (
                     <article key={message.id} className="console-message user">

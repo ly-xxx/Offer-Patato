@@ -72,6 +72,7 @@ type ConsoleMessage =
 type Props = {
   autoReferenceCurrentDoc: boolean
   currentDocument: DocumentData | null
+  demoMode?: boolean
   defaultDockLeft?: number
   defaultDockTop?: number
   dockMainLeft?: number
@@ -347,6 +348,16 @@ export function FloatingCodexWindow(props: Props) {
   const handleSend = async () => {
     const trimmed = input.trim()
     if (!trimmed || runningJobId) {
+      return
+    }
+    if (props.demoMode) {
+      setMessages((current) => [...current, {
+        createdAt: new Date().toISOString(),
+        error: '当前为 Demo 模式：Codex 浮窗只展示界面，不会发起真实请求。',
+        id: `assistant_demo_${Date.now()}`,
+        role: 'assistant',
+        state: 'failed'
+      }])
       return
     }
 
@@ -648,8 +659,12 @@ export function FloatingCodexWindow(props: Props) {
             <div className="console-message-list">
               {messages.length === 0 ? (
                 <div className="console-empty-state">
-                  <strong>提问 / 修改指令</strong>
-                  <p>结合选中的目录、文件和当前文档，直接让我帮你分析、改写、补充或落地修改。</p>
+                  <strong>{props.demoMode ? 'Codex 浮窗演示' : '提问 / 修改指令'}</strong>
+                  <p>
+                    {props.demoMode
+                      ? '当前是 GitHub Pages Demo。你可以体验浮窗布局、引用方式和交互层级，但不会触发真实 Codex 调用。'
+                      : '结合选中的目录、文件和当前文档，直接让我帮你分析、改写、补充或落地修改。'}
+                  </p>
                 </div>
               ) : (
                 messages.map((message) => (
@@ -716,7 +731,11 @@ export function FloatingCodexWindow(props: Props) {
               <div className="console-control-row">
                 <label className="console-mini-select">
                   <span>模型</span>
-                  <select value={props.model} onChange={(event) => props.onModelChange(event.target.value)}>
+                  <select
+                    disabled={props.demoMode}
+                    value={props.model}
+                    onChange={(event) => props.onModelChange(event.target.value)}
+                  >
                     {props.models.map((item) => (
                       <option key={item} value={item}>{item}</option>
                     ))}
@@ -726,6 +745,7 @@ export function FloatingCodexWindow(props: Props) {
                 <label className="console-mini-select">
                   <span>effort</span>
                   <select
+                    disabled={props.demoMode}
                     value={props.reasoningEffort}
                     onChange={(event) => props.onReasoningEffortChange(event.target.value as ReasoningEffort)}
                   >
@@ -735,7 +755,7 @@ export function FloatingCodexWindow(props: Props) {
                   </select>
                 </label>
 
-                <button className="console-pill-button" onClick={() => setIsPickerOpen((current) => !current)}>
+                <button className="console-pill-button" disabled={props.demoMode} onClick={() => setIsPickerOpen((current) => !current)}>
                   <AtSign size={16} />
                   插入路径
                 </button>
@@ -761,16 +781,18 @@ export function FloatingCodexWindow(props: Props) {
 
               <div className="console-footer-row">
                 <p>
-                  支持搜索并插入具体文档。当前文档可自动引用，也可以在上方单独取消。
-                  <code>Ctrl/Cmd + Enter</code> 直接发送。
+                  {props.demoMode
+                    ? 'Demo 版保留浮窗交互形态，但发送、改写与文件写回都已关闭。'
+                    : '支持搜索并插入具体文档。当前文档可自动引用，也可以在上方单独取消。'}
+                  {!props.demoMode && <><code>Ctrl/Cmd + Enter</code> 直接发送。</>}
                 </p>
 
                 <button
                   className="console-send-button"
-                  disabled={!input.trim() || Boolean(runningJobId)}
+                  disabled={props.demoMode || !input.trim() || Boolean(runningJobId)}
                   onClick={() => void handleSend()}
                 >
-                  发送到 Codex
+                  {props.demoMode ? 'Demo 只读' : '发送到 Codex'}
                   <SendHorizontal size={17} />
                 </button>
               </div>
