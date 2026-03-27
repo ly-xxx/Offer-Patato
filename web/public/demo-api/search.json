@@ -11,16 +11,58 @@
       "text": "为什么运行时配置比构建时写死更适合 Pages？",
       "displayText": "为什么运行时配置比构建时写死更适合 Pages？",
       "translatedText": "为什么运行时配置比构建时写死更适合 Pages？"
+    },
+    {
+      "id": "demo-q-4",
+      "text": "召回链路怎么兼顾延迟和覆盖率？",
+      "displayText": "召回链路怎么兼顾延迟和覆盖率？",
+      "translatedText": "召回链路怎么兼顾延迟和覆盖率？"
+    },
+    {
+      "id": "demo-q-7",
+      "text": "你们怎么评估 hallucination 和 groundedness？",
+      "displayText": "你们怎么评估 hallucination 和 groundedness？",
+      "translatedText": "你们怎么评估 hallucination 和 groundedness？"
+    },
+    {
+      "id": "demo-q-9",
+      "text": "索引增量更新失败时怎么回滚和重放？",
+      "displayText": "索引增量更新失败时怎么回滚和重放？",
+      "translatedText": "索引增量更新失败时怎么回滚和重放？"
     }
   ],
   "sections": [
     {
-      "id": "s-demo-1",
-      "documentId": "doc-guide-llm",
-      "documentTitle": "LLM 与 RAG 面试主线（Demo）",
-      "heading": "为什么优先 RAG",
-      "content": "当知识变化频繁时，RAG 比微调更容易保持可追溯与低成本更新。",
-      "relPath": "demo/llm-guide.md"
+      "id": "s-demo-rag-1",
+      "documentId": "doc-guide-rag-playbook",
+      "documentTitle": "RAG 架构与检索策略（Demo）",
+      "heading": "召回策略",
+      "content": "第一阶段向量召回 80 条 + BM25 40 条，融合去重后进入重排。",
+      "relPath": "demo/rag-playbook.md"
+    },
+    {
+      "id": "s-demo-rag-2",
+      "documentId": "doc-guide-rag-eval",
+      "documentTitle": "RAG 评估、上线与运维（Demo）",
+      "heading": "质量评估框架",
+      "content": "采用 Recall@k、nDCG、Groundedness、Hallucination rate 四维评估。",
+      "relPath": "demo/rag-eval-and-ops.md"
+    },
+    {
+      "id": "s-demo-offerloom-1",
+      "documentId": "doc-work-offerloom",
+      "documentTitle": "OfferLoom 架构笔记（Demo）",
+      "heading": "GitHub Pages 演示模式",
+      "content": "同构建产物 + runtime-config 切换 demoMode，写操作全部禁用，保证展示安全。",
+      "relPath": "offerloom/architecture-notes.md"
+    },
+    {
+      "id": "s-demo-rag-ops-1",
+      "documentId": "doc-work-rag-ops",
+      "documentTitle": "RAGCompass 索引运维 Runbook（Demo）",
+      "heading": "回滚策略",
+      "content": "保留最近 5 个可用快照，异常时自动切回上个稳定版本并幂等重放。",
+      "relPath": "rag-compass/ops/indexing-runbook.md"
     }
   ]
 }

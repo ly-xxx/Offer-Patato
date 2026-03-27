@@ -5,9 +5,9 @@
 # OfferPotato
 
 <p align="center">
-  <a href="https://github.com/ly-xxx/Offer-loom/stargazers"><img src="https://img.shields.io/github/stars/ly-xxx/Offer-loom?style=flat-square" alt="GitHub stars" /></a>
-  <a href="https://github.com/ly-xxx/Offer-loom/network/members"><img src="https://img.shields.io/github/forks/ly-xxx/Offer-loom?style=flat-square" alt="GitHub forks" /></a>
-  <a href="https://github.com/ly-xxx/Offer-loom/issues"><img src="https://img.shields.io/github/issues/ly-xxx/Offer-loom?style=flat-square" alt="GitHub issues" /></a>
+  <a href="https://github.com/ly-xxx/Offer-Patato/stargazers"><img src="https://img.shields.io/github/stars/ly-xxx/Offer-Patato?style=flat-square" alt="GitHub stars" /></a>
+  <a href="https://github.com/ly-xxx/Offer-Patato/network/members"><img src="https://img.shields.io/github/forks/ly-xxx/Offer-Patato?style=flat-square" alt="GitHub forks" /></a>
+  <a href="https://github.com/ly-xxx/Offer-Patato/issues"><img src="https://img.shields.io/github/issues/ly-xxx/Offer-Patato?style=flat-square" alt="GitHub issues" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-16a34a?style=flat-square" alt="MIT license" /></a>
 </p>
 
@@ -28,13 +28,13 @@
 </p>
 
 <p align="center">
-  <a href="https://ly-xxx.github.io/Offer-loom/">
+  <a href="https://ly-xxx.github.io/Offer-Patato/">
     <img src="https://img.shields.io/badge/ONLINE%20TRY%20NOW-GitHub%20Pages-ff5a1f?style=for-the-badge&logo=githubpages&logoColor=white" alt="Try OfferPotato Demo" />
   </a>
 </p>
 
 <p align="center">
-  <strong><a href="https://ly-xxx.github.io/Offer-loom/">在线试用入口</a></strong>（无需本地安装）
+  <strong><a href="https://ly-xxx.github.io/Offer-Patato/">在线试用入口</a></strong>（无需本地安装）
 </p>
 
 **如果你正在准备技术面试，大概率会遇到这三个死局：**
@@ -69,8 +69,8 @@ OfferPotato 不绑定特定技术栈。无论你是准备 LLM、前端、后端�
 仓库内置了公开的测试数据，即便你还没整理好自己的资料，也可以直接跑起来体验整套界面和工作流。
 
 ```bash
-git clone https://github.com/ly-xxx/Offer-loom.git
-cd Offer-loom
+git clone https://github.com/ly-xxx/Offer-Patato.git
+cd Offer-Patato
 npm install
 npm run setup:serve
 ```
@@ -195,10 +195,10 @@ sources/
 
 ## Star History
 
-<a href="https://www.star-history.com/#ly-xxx/Offer-loom&Date">
+<a href="https://www.star-history.com/#ly-xxx/Offer-Patato&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ly-xxx/Offer-loom&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=ly-xxx/Offer-loom&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=ly-xxx/Offer-loom&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ly-xxx/Offer-Patato&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=ly-xxx/Offer-Patato&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=ly-xxx/Offer-Patato&type=Date" />
   </picture>
 </a>

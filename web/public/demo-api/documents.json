@@ -1,14 +1,25 @@
 [
   {
-    "id": "doc-guide-llm",
+    "id": "doc-guide-rag-playbook",
     "kind": "guide",
     "ext": "md",
-    "path": "sources/documents/demo/llm-guide.md",
-    "relPath": "demo/llm-guide.md",
+    "path": "sources/documents/demo/rag-playbook.md",
+    "relPath": "demo/rag-playbook.md",
     "sourceId": "demo-guide-source",
-    "title": "LLM 与 RAG 面试主线（Demo）",
-    "updatedAt": "2026-03-27T09:40:00.000Z",
-    "knowledgeHitCount": 3
+    "title": "RAG 架构与检索策略（Demo）",
+    "updatedAt": "2026-03-27T09:30:00.000Z",
+    "knowledgeHitCount": 7
+  },
+  {
+    "id": "doc-guide-rag-eval",
+    "kind": "guide",
+    "ext": "md",
+    "path": "sources/documents/demo/rag-eval-and-ops.md",
+    "relPath": "demo/rag-eval-and-ops.md",
+    "sourceId": "demo-guide-source",
+    "title": "RAG 评估、上线与运维（Demo）",
+    "updatedAt": "2026-03-27T09:36:00.000Z",
+    "knowledgeHitCount": 6
   },
   {
     "id": "doc-work-offerloom",
@@ -18,7 +29,40 @@
     "relPath": "offerloom/architecture-notes.md",
     "sourceId": "demo-mywork",
     "title": "OfferLoom 架构笔记（Demo）",
-    "updatedAt": "2026-03-27T09:45:00.000Z",
-    "knowledgeHitCount": 2
+    "updatedAt": "2026-03-27T11:35:00.000Z",
+    "knowledgeHitCount": 9
+  },
+  {
+    "id": "doc-work-rag-architecture",
+    "kind": "work",
+    "ext": "md",
+    "path": "mywork/rag-compass/architecture/overview.md",
+    "relPath": "rag-compass/architecture/overview.md",
+    "sourceId": "demo-mywork",
+    "title": "RAGCompass 架构设计（Demo）",
+    "updatedAt": "2026-03-27T09:48:00.000Z",
+    "knowledgeHitCount": 5
+  },
+  {
+    "id": "doc-work-rag-evaluation",
+    "kind": "work",
+    "ext": "md",
+    "path": "mywork/rag-compass/eval/offline-report.md",
+    "relPath": "rag-compass/eval/offline-report.md",
+    "sourceId": "demo-mywork",
+    "title": "RAGCompass 离线评估报告（Demo）",
+    "updatedAt": "2026-03-27T09:52:00.000Z",
+    "knowledgeHitCount": 4
+  },
+  {
+    "id": "doc-work-rag-ops",
+    "kind": "work",
+    "ext": "md",
+    "path": "mywork/rag-compass/ops/indexing-runbook.md",
+    "relPath": "rag-compass/ops/indexing-runbook.md",
+    "sourceId": "demo-mywork",
+    "title": "RAGCompass 索引运维 Runbook（Demo）",
+    "updatedAt": "2026-03-27T09:55:00.000Z",
+    "knowledgeHitCount": 4
   }
 ]

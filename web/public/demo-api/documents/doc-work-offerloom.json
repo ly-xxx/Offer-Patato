@@ -6,23 +6,174 @@
   "relPath": "offerloom/architecture-notes.md",
   "sourceId": "demo-mywork",
   "title": "OfferLoom 架构笔记（Demo）",
-  "updatedAt": "2026-03-27T09:45:00.000Z",
+  "updatedAt": "2026-03-27T11:35:00.000Z",
   "watchPath": null,
   "meta": {
     "project": "OfferLoom",
-    "stage": "demo"
+    "stage": "production-like-demo",
+    "owner": "solo-builder"
   },
-  "content": "# OfferLoom 架构笔记\n\n- 前端：React + Vite\n- 后端：Node + SQLite\n- 关键能力：文档-题目联动、项目证据回溯\n",
+  "content": "# OfferLoom 架构笔记\n\n## 背景与目标\n准备技术面试时，知识点和个人项目经验长期割裂。OfferLoom 的目标是把主线文档学习、面经题目训练、个人项目证据整理在一个工作台里完成。\n\n## 系统模块\nWeb 端采用 React + Vite，服务端采用 Node + SQLite。任务层拆分为 answer / console / interviewer / index 四类 Job，用于隔离延迟敏感链路与后台批处理。\n\n## 题目到证据的联动策略\n题目先关联主线章节，再关联 mywork 项目证据。关联流程采用语义召回 + 阈值筛选，低置信度仅展示为提示，不直接作为强引用。\n\n## GitHub Pages 演示模式\n线上演示复用同一套前端代码，部署时注入 runtime-config.json 切换 demoMode，所有写操作禁用，避免触发真实模型调用与 token 成本。\n\n## 故障与回滚记录（Demo）\n一次索引任务阻塞导致题目页加载变慢。处理方式是把 index Job 放到独立队列并增加超时熔断，恢复后题目详情页首屏 p95 从 1.6s 降到 0.9s。",
   "sections": [
     {
-      "anchor": "arch-overview",
-      "heading": "架构概览",
+      "anchor": "offerloom-background-goals",
+      "heading": "背景与目标",
       "level": 2,
       "startLine": 3,
       "endLine": 6,
-      "knowledgeHitCount": 1,
-      "content": "前后端解耦，任务层支持独立扩展。",
-      "relatedQuestions": []
+      "knowledgeHitCount": 2,
+      "content": "核心目标是打通知识学习与项目证据表达，避免回答悬空。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-1",
+          "text": "为什么选择 RAG 而不是直接微调？",
+          "displayText": "为什么选择 RAG 而不是直接微调？",
+          "difficulty": "medium",
+          "score": 0.82,
+          "questionType": "system",
+          "translatedText": "为什么选择 RAG 而不是直接微调？",
+          "isRevisited": false,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:00:00.000Z",
+          "generated": {
+            "elevator_pitch": "优先保证知识可追溯与更新效率。",
+            "full_answer_markdown": "知识高频变化场景优先 RAG，兼顾可解释与更新效率。",
+            "work_story": "OfferLoom 选择可回溯引用链路，避免回答与材料脱节。",
+            "work_evidence_status": "adjacent",
+            "follow_ups": ["什么时候会考虑微调？"],
+            "missing_basics": []
+          }
+        }
+      ]
+    },
+    {
+      "anchor": "offerloom-job-architecture",
+      "heading": "系统模块",
+      "level": 2,
+      "startLine": 8,
+      "endLine": 11,
+      "knowledgeHitCount": 3,
+      "content": "Job 拆分用于保证交互链路稳定，并允许后台任务独立扩容。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-2",
+          "text": "并发提升 10 倍时系统先优化哪里？",
+          "displayText": "并发提升 10 倍时系统先优化哪里？",
+          "difficulty": "hard",
+          "score": 0.9,
+          "questionType": "architecture",
+          "translatedText": "并发提升 10 倍时系统先优化哪里？",
+          "isRevisited": true,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:02:00.000Z",
+          "generated": {
+            "elevator_pitch": "先做任务隔离，再做水平扩展。",
+            "full_answer_markdown": "先把 answer 与 index 任务分池，避免后台作业拖慢交互，再做按类型扩容。",
+            "work_story": "索引任务独立后，交互请求排队时间下降明显。",
+            "work_evidence_status": "direct",
+            "follow_ups": ["队列优先级如何设计？"],
+            "missing_basics": []
+          }
+        }
+      ]
+    },
+    {
+      "anchor": "offerloom-retrieval-linking",
+      "heading": "题目到证据的联动策略",
+      "level": 2,
+      "startLine": 13,
+      "endLine": 16,
+      "knowledgeHitCount": 3,
+      "content": "召回采用保守阈值，宁缺毋滥，降低面试回答中的伪关联风险。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-5",
+          "text": "Chunk 策略怎么做，如何避免 lost-in-the-middle？",
+          "displayText": "Chunk 策略怎么做，如何避免 lost-in-the-middle？",
+          "difficulty": "medium",
+          "score": 0.84,
+          "questionType": "retrieval",
+          "translatedText": "Chunk 策略怎么做，如何避免 lost-in-the-middle？",
+          "isRevisited": false,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:08:00.000Z",
+          "generated": {
+            "elevator_pitch": "结构化切片 + 位置重排。",
+            "full_answer_markdown": "按标题和语义边界切片，结合位置校正，避免中段信息被淹没。",
+            "work_story": "在长文档面经中使用标题锚点后，引用命中更稳定。",
+            "work_evidence_status": "adjacent",
+            "follow_ups": ["切片 overlap 比例怎么定？"],
+            "missing_basics": []
+          }
+        }
+      ]
+    },
+    {
+      "anchor": "offerloom-pages-demo-mode",
+      "heading": "GitHub Pages 演示模式",
+      "level": 2,
+      "startLine": 18,
+      "endLine": 21,
+      "knowledgeHitCount": 2,
+      "content": "发布时注入运行时配置，复用主前端代码并禁用写操作。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-3",
+          "text": "为什么运行时配置比构建时写死更适合 Pages？",
+          "displayText": "为什么运行时配置比构建时写死更适合 Pages？",
+          "difficulty": "easy",
+          "score": 0.92,
+          "questionType": "frontend",
+          "translatedText": "为什么运行时配置比构建时写死更适合 Pages？",
+          "isRevisited": true,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:04:00.000Z",
+          "generated": {
+            "elevator_pitch": "运行时切换配置，避免多套构建产物漂移。",
+            "full_answer_markdown": "同构建产物 + 运行时配置切换，可以保证本地与 Pages 视觉和行为一致。",
+            "work_story": "该策略减少了维护分叉 demo 分支的成本。",
+            "work_evidence_status": "direct",
+            "follow_ups": ["配置注入点怎么防缓存污染？"],
+            "missing_basics": []
+          }
+        }
+      ]
+    },
+    {
+      "anchor": "offerloom-incident-rollback",
+      "heading": "故障与回滚记录（Demo）",
+      "level": 2,
+      "startLine": 23,
+      "endLine": 26,
+      "knowledgeHitCount": 2,
+      "content": "一次索引阻塞通过队列隔离与熔断恢复，形成可复用运维预案。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-9",
+          "text": "索引增量更新失败时怎么回滚和重放？",
+          "displayText": "索引增量更新失败时怎么回滚和重放？",
+          "difficulty": "medium",
+          "score": 0.83,
+          "questionType": "ops",
+          "translatedText": "索引增量更新失败时怎么回滚和重放？",
+          "isRevisited": false,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:16:00.000Z",
+          "generated": {
+            "elevator_pitch": "隔离失败域并快速恢复交互链路。",
+            "full_answer_markdown": "通过独立队列、快照回滚和幂等重放，恢复服务并减少复发概率。",
+            "work_story": "恢复后增加了索引超时告警和自动降级。",
+            "work_evidence_status": "adjacent",
+            "follow_ups": ["幂等重放的数据边界如何定义？"],
+            "missing_basics": []
+          }
+        }
+      ]
     }
   ],
   "looseRelatedQuestions": []

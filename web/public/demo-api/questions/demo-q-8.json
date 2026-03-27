@@ -1,0 +1,98 @@
+{
+  "id": "demo-q-8",
+  "text": "多租户文档怎么做权限隔离，避免串库？",
+  "displayText": "多租户文档怎么做权限隔离，避免串库？",
+  "translatedText": "多租户文档怎么做权限隔离，避免串库？",
+  "difficulty": "hard",
+  "questionType": "security",
+  "sourceId": "demo-qbank-source",
+  "sourcePath": "question-bank/security.md",
+  "sourceTitle": "Demo 面经题库 · 安全",
+  "metadata": {
+    "primaryCategoryId": "security",
+    "primaryCategoryLabel": "安全与合规",
+    "primaryCategoryOrder": 50
+  },
+  "generatedCount": 1,
+  "lastGeneratedAt": "2026-03-27T10:14:00.000Z",
+  "workEvidenceStatus": "direct",
+  "generationHistory": [
+    {
+      "id": "gen-demo-q-8",
+      "model": "gpt-5.4",
+      "reasoningEffort": "high",
+      "status": "ready",
+      "updatedAt": "2026-03-27T10:14:00.000Z"
+    }
+  ],
+  "generated": {
+    "id": "gen-demo-q-8",
+    "questionId": "demo-q-8",
+    "model": "gpt-5.4",
+    "reasoningEffort": "high",
+    "status": "ready",
+    "updatedAt": "2026-03-27T10:14:00.000Z",
+    "output": {
+      "elevator_pitch": "多租户权限隔离",
+      "full_answer_markdown": "索引层按租户隔离，查询链路做 ACL 二次过滤，并记录审计日志保障可追踪。",
+      "work_story": "RAGCompass 在网关、检索和生成前均校验 tenant_id。",
+      "work_evidence_status": "direct",
+      "work_evidence_note": "证据来自 RAGCompass 索引运维 Runbook（Demo） 与对应主线章节。",
+      "knowledge_map": [
+        {
+          "concept": "安全与合规",
+          "confidence": "high",
+          "why_it_matters": "多租户权限隔离"
+        }
+      ],
+      "follow_ups": [
+        "跨租户共享知识怎么安全实现？",
+        "审计日志保留周期如何定？"
+      ],
+      "missing_basics": []
+    },
+    "citations": [
+      {
+        "kind": "guide",
+        "label": "多租户权限模型",
+        "path": "doc-guide-rag-eval"
+      },
+      {
+        "kind": "work",
+        "label": "RAGCompass 索引运维 Runbook（Demo）",
+        "path": "rag-compass/ops/indexing-runbook.md"
+      }
+    ],
+    "outputMarkdown": "索引层按租户隔离，查询链路做 ACL 二次过滤，并记录审计日志保障可追踪。"
+  },
+  "guideMatches": [
+    {
+      "id": "gm-demo-q-8",
+      "documentId": "doc-guide-rag-eval",
+      "documentTitle": "RAG 评估、上线与运维（Demo）",
+      "heading": "多租户权限模型",
+      "anchor": "tenant-acl",
+      "content": "索引层按租户隔离，查询链路做 ACL 二次过滤，并记录审计日志保障可追踪。",
+      "path": "sources/documents/demo/rag-eval-and-ops.md",
+      "relPath": "demo/rag-eval-and-ops.md",
+      "startLine": 3,
+      "endLine": 8,
+      "level": 2,
+      "score": 0.92
+    }
+  ],
+  "guideFallbackMatches": [],
+  "workMatches": [
+    {
+      "id": "wm-demo-q-8",
+      "title": "RAGCompass 索引运维 Runbook（Demo）",
+      "path": "mywork/rag-compass/ops/indexing-runbook.md",
+      "relPath": "rag-compass/ops/indexing-runbook.md",
+      "score": 0.82,
+      "meta": {
+        "project": "RAGCompass"
+      }
+    }
+  ],
+  "workHintMatches": []
+}

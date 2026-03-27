@@ -1,0 +1,98 @@
+{
+  "id": "demo-q-6",
+  "text": "为什么你们选 cross-encoder reranker，不是只用向量相似度？",
+  "displayText": "为什么你们选 cross-encoder reranker，不是只用向量相似度？",
+  "translatedText": "为什么你们选 cross-encoder reranker，不是只用向量相似度？",
+  "difficulty": "medium",
+  "questionType": "evaluation",
+  "sourceId": "demo-qbank-source",
+  "sourcePath": "question-bank/evaluation.md",
+  "sourceTitle": "Demo 面经题库 · 评估",
+  "metadata": {
+    "primaryCategoryId": "eval",
+    "primaryCategoryLabel": "评估与质量",
+    "primaryCategoryOrder": 40
+  },
+  "generatedCount": 1,
+  "lastGeneratedAt": "2026-03-27T10:10:00.000Z",
+  "workEvidenceStatus": "direct",
+  "generationHistory": [
+    {
+      "id": "gen-demo-q-6",
+      "model": "gpt-5.4",
+      "reasoningEffort": "medium",
+      "status": "ready",
+      "updatedAt": "2026-03-27T10:10:00.000Z"
+    }
+  ],
+  "generated": {
+    "id": "gen-demo-q-6",
+    "questionId": "demo-q-6",
+    "model": "gpt-5.4",
+    "reasoningEffort": "medium",
+    "status": "ready",
+    "updatedAt": "2026-03-27T10:10:00.000Z",
+    "output": {
+      "elevator_pitch": "为何需要 reranker",
+      "full_answer_markdown": "向量召回适合粗筛，cross-encoder 更擅长细粒度相关性排序，特别是 hard negative。",
+      "work_story": "离线评估中 nDCG@10 和 MRR 均提升，线上回复可追溯性更稳定。",
+      "work_evidence_status": "direct",
+      "work_evidence_note": "证据来自 RAGCompass 离线评估报告（Demo） 与对应主线章节。",
+      "knowledge_map": [
+        {
+          "concept": "评估与质量",
+          "confidence": "high",
+          "why_it_matters": "为何需要 reranker"
+        }
+      ],
+      "follow_ups": [
+        "延迟增加如何控制？",
+        "是否蒸馏更小模型做 rerank？"
+      ],
+      "missing_basics": []
+    },
+    "citations": [
+      {
+        "kind": "guide",
+        "label": "质量评估框架",
+        "path": "doc-guide-rag-eval"
+      },
+      {
+        "kind": "work",
+        "label": "RAGCompass 离线评估报告（Demo）",
+        "path": "rag-compass/eval/offline-report.md"
+      }
+    ],
+    "outputMarkdown": "向量召回适合粗筛，cross-encoder 更擅长细粒度相关性排序，特别是 hard negative。"
+  },
+  "guideMatches": [
+    {
+      "id": "gm-demo-q-6",
+      "documentId": "doc-guide-rag-eval",
+      "documentTitle": "RAG 评估、上线与运维（Demo）",
+      "heading": "质量评估框架",
+      "anchor": "eval-framework",
+      "content": "向量召回适合粗筛，cross-encoder 更擅长细粒度相关性排序，特别是 hard negative。",
+      "path": "sources/documents/demo/rag-eval-and-ops.md",
+      "relPath": "demo/rag-eval-and-ops.md",
+      "startLine": 3,
+      "endLine": 8,
+      "level": 2,
+      "score": 0.9
+    }
+  ],
+  "guideFallbackMatches": [],
+  "workMatches": [
+    {
+      "id": "wm-demo-q-6",
+      "title": "RAGCompass 离线评估报告（Demo）",
+      "path": "mywork/rag-compass/eval/offline-report.md",
+      "relPath": "rag-compass/eval/offline-report.md",
+      "score": 0.91,
+      "meta": {
+        "project": "RAGCompass"
+      }
+    }
+  ],
+  "workHintMatches": []
+}

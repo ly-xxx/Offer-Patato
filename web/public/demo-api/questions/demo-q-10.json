@@ -1,0 +1,98 @@
+{
+  "id": "demo-q-10",
+  "text": "RAG 场景下怎么做 token 成本优化？",
+  "displayText": "RAG 场景下怎么做 token 成本优化？",
+  "translatedText": "RAG 场景下怎么做 token 成本优化？",
+  "difficulty": "medium",
+  "questionType": "cost",
+  "sourceId": "demo-qbank-source",
+  "sourcePath": "question-bank/ops.md",
+  "sourceTitle": "Demo 面经题库 · 运维",
+  "metadata": {
+    "primaryCategoryId": "ops",
+    "primaryCategoryLabel": "运维与稳定性",
+    "primaryCategoryOrder": 60
+  },
+  "generatedCount": 1,
+  "lastGeneratedAt": "2026-03-27T10:18:00.000Z",
+  "workEvidenceStatus": "direct",
+  "generationHistory": [
+    {
+      "id": "gen-demo-q-10",
+      "model": "gpt-5.4",
+      "reasoningEffort": "medium",
+      "status": "ready",
+      "updatedAt": "2026-03-27T10:18:00.000Z"
+    }
+  ],
+  "generated": {
+    "id": "gen-demo-q-10",
+    "questionId": "demo-q-10",
+    "model": "gpt-5.4",
+    "reasoningEffort": "medium",
+    "status": "ready",
+    "updatedAt": "2026-03-27T10:18:00.000Z",
+    "output": {
+      "elevator_pitch": "RAG token 成本优化",
+      "full_answer_markdown": "通过 query 缓存、上下文压缩、模型分层路由和动态 topk，实现质量与成本平衡。",
+      "work_story": "热门 query 缓存命中后，月度 token 成本下降约 35%。",
+      "work_evidence_status": "direct",
+      "work_evidence_note": "证据来自 RAGCompass 索引运维 Runbook（Demo） 与对应主线章节。",
+      "knowledge_map": [
+        {
+          "concept": "运维与稳定性",
+          "confidence": "high",
+          "why_it_matters": "RAG token 成本优化"
+        }
+      ],
+      "follow_ups": [
+        "缓存一致性如何保证？",
+        "不同模型路由策略怎么设？"
+      ],
+      "missing_basics": []
+    },
+    "citations": [
+      {
+        "kind": "guide",
+        "label": "索引与回滚",
+        "path": "doc-guide-rag-eval"
+      },
+      {
+        "kind": "work",
+        "label": "RAGCompass 索引运维 Runbook（Demo）",
+        "path": "rag-compass/ops/indexing-runbook.md"
+      }
+    ],
+    "outputMarkdown": "通过 query 缓存、上下文压缩、模型分层路由和动态 topk，实现质量与成本平衡。"
+  },
+  "guideMatches": [
+    {
+      "id": "gm-demo-q-10",
+      "documentId": "doc-guide-rag-eval",
+      "documentTitle": "RAG 评估、上线与运维（Demo）",
+      "heading": "索引与回滚",
+      "anchor": "index-rollback",
+      "content": "通过 query 缓存、上下文压缩、模型分层路由和动态 topk，实现质量与成本平衡。",
+      "path": "sources/documents/demo/rag-eval-and-ops.md",
+      "relPath": "demo/rag-eval-and-ops.md",
+      "startLine": 3,
+      "endLine": 8,
+      "level": 2,
+      "score": 0.77
+    }
+  ],
+  "guideFallbackMatches": [],
+  "workMatches": [
+    {
+      "id": "wm-demo-q-10",
+      "title": "RAGCompass 索引运维 Runbook（Demo）",
+      "path": "mywork/rag-compass/ops/indexing-runbook.md",
+      "relPath": "rag-compass/ops/indexing-runbook.md",
+      "score": 0.9,
+      "meta": {
+        "project": "RAGCompass"
+      }
+    }
+  ],
+  "workHintMatches": []
+}

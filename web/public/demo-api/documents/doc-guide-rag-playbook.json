@@ -1,0 +1,112 @@
+{
+  "id": "doc-guide-rag-playbook",
+  "kind": "guide",
+  "ext": "md",
+  "path": "sources/documents/demo/rag-playbook.md",
+  "relPath": "demo/rag-playbook.md",
+  "sourceId": "demo-guide-source",
+  "title": "RAG 架构与检索策略（Demo）",
+  "updatedAt": "2026-03-27T09:30:00.000Z",
+  "watchPath": null,
+  "meta": {},
+  "content": "# RAG 架构与检索策略\n\n## 架构总览\n采用 Query Rewrite + Hybrid Retrieval + Cross-Encoder Rerank + Citation Guardrail。\n\n## 召回策略\n第一阶段向量召回 80 条 + BM25 40 条，融合去重后进入重排。\n\n## Chunk 方案\n按语义段 + 结构标题双切片，窗口 420 token，重叠 80 token。",
+  "sections": [
+    {
+      "anchor": "rag-arch-overview",
+      "heading": "架构总览",
+      "level": 2,
+      "startLine": 3,
+      "endLine": 6,
+      "knowledgeHitCount": 2,
+      "content": "采用 Query Rewrite + Hybrid Retrieval + Cross-Encoder Rerank + Citation Guardrail。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-1",
+          "text": "为什么选择 RAG 而不是直接微调？",
+          "displayText": "为什么选择 RAG 而不是直接微调？",
+          "difficulty": "medium",
+          "score": 0.93,
+          "questionType": "system",
+          "translatedText": "为什么选择 RAG 而不是直接微调？",
+          "isRevisited": false,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:00:00.000Z",
+          "generated": {
+            "elevator_pitch": "知识更新快时优先 RAG。",
+            "full_answer_markdown": "RAG 在可追溯性、更新速度和成本上更适合业务知识域。",
+            "work_story": "RAGCompass 每日增量入库，不需要反复重训。",
+            "work_evidence_status": "direct",
+            "follow_ups": ["何时切微调？", "怎么控召回噪声？"],
+            "missing_basics": []
+          }
+        }
+      ]
+    },
+    {
+      "anchor": "retrieval-strategy",
+      "heading": "召回策略",
+      "level": 2,
+      "startLine": 8,
+      "endLine": 11,
+      "knowledgeHitCount": 3,
+      "content": "第一阶段向量召回 80 条 + BM25 40 条，融合去重后进入重排。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-4",
+          "text": "召回链路怎么兼顾延迟和覆盖率？",
+          "displayText": "召回链路怎么兼顾延迟和覆盖率？",
+          "difficulty": "hard",
+          "score": 0.95,
+          "questionType": "retrieval",
+          "translatedText": "召回链路怎么兼顾延迟和覆盖率？",
+          "isRevisited": false,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:06:00.000Z",
+          "generated": {
+            "elevator_pitch": "两阶段召回与动态 topk。",
+            "full_answer_markdown": "先扩召回保覆盖，再用重排和阈值裁剪控制时延。",
+            "work_story": "我们在 RAGCompass 对不同 query 长度动态调整 topk。",
+            "work_evidence_status": "direct",
+            "follow_ups": ["峰值时怎么退化？", "重排慢了怎么办？"],
+            "missing_basics": []
+          }
+        }
+      ]
+    },
+    {
+      "anchor": "chunking-strategy",
+      "heading": "Chunk 方案",
+      "level": 2,
+      "startLine": 13,
+      "endLine": 16,
+      "knowledgeHitCount": 2,
+      "content": "按语义段 + 结构标题双切片，窗口 420 token，重叠 80 token。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-5",
+          "text": "Chunk 策略怎么做，如何避免 lost-in-the-middle？",
+          "displayText": "Chunk 策略怎么做，如何避免 lost-in-the-middle？",
+          "difficulty": "medium",
+          "score": 0.91,
+          "questionType": "retrieval",
+          "translatedText": "Chunk 策略怎么做，如何避免 lost-in-the-middle？",
+          "isRevisited": false,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:08:00.000Z",
+          "generated": {
+            "elevator_pitch": "结构化切片 + 位置重排。",
+            "full_answer_markdown": "采用语义切片并给首尾片段加权，降低中段信息被忽视的问题。",
+            "work_story": "RAGCompass 在召回后会做位置校正重排。",
+            "work_evidence_status": "adjacent",
+            "follow_ups": ["重叠比例如何选？", "多语言文档怎么切？"],
+            "missing_basics": []
+          }
+        }
+      ]
+    }
+  ],
+  "looseRelatedQuestions": []
+}

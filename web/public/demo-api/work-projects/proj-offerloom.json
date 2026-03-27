@@ -3,32 +3,78 @@
   "name": "OfferLoom",
   "rootPath": "mywork/offerloom",
   "status": "indexed",
-  "summary": "用于演示项目证据映射与面试回答串联",
+  "summary": "面试准备工作台：文档、题库、项目证据三方联动，并支持 Pages 动态演示配置",
   "meta": {
     "language": "TypeScript",
-    "domain": "Interview Copilot"
+    "domain": "Interview Copilot",
+    "stage": "production-like-demo"
   },
   "prep": {
-    "openingPitch": "这是一个把主线文档、面经题库和个人项目材料串联起来的面试准备工作台。",
+    "openingPitch": "OfferLoom 解决的是‘知道答案但不会讲项目落地’的问题：把主线学习文档、面经题库和 mywork 项目证据打通成一个可追溯的回答工作流。",
     "interviewArc": [
-      "先讲问题背景与目标",
-      "再讲架构拆分与关键取舍",
-      "最后讲上线后的稳定性与可扩展性"
+      "问题背景：面试准备信息散落在教程、题库和个人项目里，难以串成故事",
+      "方案设计：文档章节作为主线，题目作为注脚，mywork 作为证据层",
+      "工程实现：任务模型拆分 answer/console/interviewer/index，隔离资源与失败域",
+      "上线策略：运行时配置注入 demoMode，GitHub Pages 与主前端代码同源发布"
     ],
     "highlightFacts": [
       {
-        "label": "核心亮点",
-        "value": "文档-题目-项目证据三方联动",
+        "label": "任务编排",
+        "value": "拆分 answer/console/interviewer/index 四类 Job，支持队列隔离",
+        "sourceLabel": "architecture-notes.md"
+      },
+      {
+        "label": "链路性能",
+        "value": "题目详情页首屏渲染 p95 从 1.6s 优化到 0.9s（Demo 指标）",
+        "sourceLabel": "architecture-notes.md"
+      },
+      {
+        "label": "可追溯回答",
+        "value": "回答输出同时挂载 guide 引用和 work 引用，面试追问可回溯到文件",
+        "sourceLabel": "architecture-notes.md"
+      },
+      {
+        "label": "Pages 发布",
+        "value": "同一套 Web 代码，发布时注入 runtime-config.json 切换到 demoMode",
+        "sourceLabel": "architecture-notes.md"
+      },
+      {
+        "label": "风险控制",
+        "value": "Demo 模式禁用写操作与模型调用，避免误触发 token 成本",
         "sourceLabel": "architecture-notes.md"
       }
     ],
     "deepDiveQuestions": [
       {
-        "id": "dq-1",
+        "id": "dq-offerloom-1",
         "category": "architecture",
-        "question": "为什么任务系统要拆成多种 job？",
-        "intent": "考察可扩展性设计",
-        "answerAngle": "通过任务类型解耦提升吞吐与容错",
+        "question": "为什么任务系统要拆成多种 job，而不是一个统一执行器？",
+        "intent": "考察故障隔离与扩展策略",
+        "answerAngle": "按任务类型隔离资源池，避免索引或长推理阻塞交互请求",
+        "sourceLabel": "architecture-notes.md"
+      },
+      {
+        "id": "dq-offerloom-2",
+        "category": "frontend",
+        "question": "GitHub Pages 无后端时，如何保证 demo 与主站 UI 一致？",
+        "intent": "考察部署工程化能力",
+        "answerAngle": "保持同构构建产物，仅通过 runtime-config 和 demo-api 数据切换运行模式",
+        "sourceLabel": "architecture-notes.md"
+      },
+      {
+        "id": "dq-offerloom-3",
+        "category": "retrieval",
+        "question": "题目和章节的关联是如何避免强行匹配的？",
+        "intent": "考察检索质量控制",
+        "answerAngle": "先语义召回再阈值筛选，低置信度落到 hint 区域而非强绑定引用",
+        "sourceLabel": "architecture-notes.md"
+      },
+      {
+        "id": "dq-offerloom-4",
+        "category": "ops",
+        "question": "Demo 数据更新后如何自动同步到线上展示页？",
+        "intent": "考察发布链路完整性",
+        "answerAngle": "main 分支提交触发 pages workflow，构建产物包含最新 demo-api fixtures",
         "sourceLabel": "architecture-notes.md"
       }
     ],
@@ -39,7 +85,23 @@
         "text": "并发提升 10 倍时系统先优化哪里？",
         "generatedStatus": "ready",
         "maxScore": 0.9,
-        "whyRelevant": "直接对应系统扩展能力"
+        "whyRelevant": "对应任务拆分与扩容顺序"
+      },
+      {
+        "id": "demo-q-3",
+        "questionType": "frontend",
+        "text": "为什么运行时配置比构建时写死更适合 Pages？",
+        "generatedStatus": "ready",
+        "maxScore": 0.92,
+        "whyRelevant": "对应 demo 发布策略"
+      },
+      {
+        "id": "demo-q-8",
+        "questionType": "security",
+        "text": "多租户文档怎么做权限隔离，避免串库？",
+        "generatedStatus": "ready",
+        "maxScore": 0.86,
+        "whyRelevant": "对应证据引用边界与权限约束"
       }
     ],
     "sourceDocuments": [

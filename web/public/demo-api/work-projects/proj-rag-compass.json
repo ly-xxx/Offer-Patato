@@ -1,0 +1,112 @@
+{
+  "id": "proj-rag-compass",
+  "name": "RAGCompass",
+  "rootPath": "mywork/rag-compass",
+  "status": "indexed",
+  "summary": "企业知识问答 RAG 平台（含检索、评估、运维全链路）",
+  "meta": {
+    "language": "Python + TypeScript",
+    "domain": "Enterprise RAG",
+    "stage": "beta"
+  },
+  "prep": {
+    "openingPitch": "RAGCompass 是一个面向企业内部知识问答的 RAG 平台，重点解决可追溯性、延迟和成本三件事。",
+    "interviewArc": [
+      "背景：多源文档更新快，传统 FAQ 系统维护成本高",
+      "方案：Hybrid Recall + Rerank + Citation Guardrail",
+      "工程化：离线评估、增量索引、回滚与降级机制"
+    ],
+    "highlightFacts": [
+      {
+        "label": "检索链路",
+        "value": "Query Rewrite -> Hybrid Recall -> Cross-Encoder Rerank",
+        "sourceLabel": "architecture/overview.md"
+      },
+      {
+        "label": "质量指标",
+        "value": "Groundedness 0.92，Hallucination rate 3.8%",
+        "sourceLabel": "eval/offline-report.md"
+      },
+      {
+        "label": "稳定性策略",
+        "value": "批次化回滚 + 快照恢复 + 重排超时降级",
+        "sourceLabel": "ops/indexing-runbook.md"
+      }
+    ],
+    "deepDiveQuestions": [
+      {
+        "id": "dq-rag-1",
+        "category": "retrieval",
+        "question": "召回覆盖率和时延冲突时怎么做策略分层？",
+        "intent": "看是否具备检索工程经验",
+        "answerAngle": "两阶段召回 + 动态 topk + query 分级路由",
+        "sourceLabel": "architecture/overview.md"
+      },
+      {
+        "id": "dq-rag-2",
+        "category": "evaluation",
+        "question": "Groundedness 指标怎么自动化评估并做回归？",
+        "intent": "看评估体系是否可持续",
+        "answerAngle": "自动评测 + 人审抽检 + 误判样本回灌",
+        "sourceLabel": "eval/offline-report.md"
+      },
+      {
+        "id": "dq-rag-3",
+        "category": "ops",
+        "question": "索引增量失败时如何在 10 分钟内恢复？",
+        "intent": "看运维与容灾能力",
+        "answerAngle": "批次快照回滚 + 幂等重放 + 服务降级",
+        "sourceLabel": "ops/indexing-runbook.md"
+      }
+    ],
+    "relatedQuestions": [
+      {
+        "id": "demo-q-4",
+        "questionType": "retrieval",
+        "text": "召回链路怎么兼顾延迟和覆盖率？",
+        "generatedStatus": "ready",
+        "maxScore": 0.96,
+        "whyRelevant": "直接对应架构核心路径"
+      },
+      {
+        "id": "demo-q-7",
+        "questionType": "evaluation",
+        "text": "你们怎么评估 hallucination 和 groundedness？",
+        "generatedStatus": "ready",
+        "maxScore": 0.95,
+        "whyRelevant": "直接对应质量闭环"
+      },
+      {
+        "id": "demo-q-9",
+        "questionType": "ops",
+        "text": "索引增量更新失败时怎么回滚和重放？",
+        "generatedStatus": "ready",
+        "maxScore": 0.94,
+        "whyRelevant": "直接对应生产稳定性"
+      }
+    ],
+    "sourceDocuments": [
+      {
+        "id": "doc-work-rag-architecture",
+        "title": "RAGCompass 架构设计（Demo）",
+        "relPath": "rag-compass/architecture/overview.md",
+        "ext": "md",
+        "originKind": "work"
+      },
+      {
+        "id": "doc-work-rag-evaluation",
+        "title": "RAGCompass 离线评估报告（Demo）",
+        "relPath": "rag-compass/eval/offline-report.md",
+        "ext": "md",
+        "originKind": "work"
+      },
+      {
+        "id": "doc-work-rag-ops",
+        "title": "RAGCompass 索引运维 Runbook（Demo）",
+        "relPath": "rag-compass/ops/indexing-runbook.md",
+        "ext": "md",
+        "originKind": "work"
+      }
+    ]
+  }
+}

@@ -4,10 +4,23 @@
     "name": "OfferLoom",
     "rootPath": "mywork/offerloom",
     "status": "indexed",
-    "summary": "用于演示项目证据映射与面试回答串联",
+    "summary": "面试准备工作台：文档、题库、项目证据三方联动，并支持 Pages 动态演示配置",
     "meta": {
       "language": "TypeScript",
-      "domain": "Interview Copilot"
+      "domain": "Interview Copilot",
+      "stage": "production-like-demo"
+    }
+  },
+  {
+    "id": "proj-rag-compass",
+    "name": "RAGCompass",
+    "rootPath": "mywork/rag-compass",
+    "status": "indexed",
+    "summary": "企业知识问答 RAG 平台（含检索、评估、运维全链路）",
+    "meta": {
+      "language": "Python + TypeScript",
+      "domain": "Enterprise RAG",
+      "stage": "beta"
     }
   }
 ]

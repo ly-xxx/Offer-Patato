@@ -1,19 +1,19 @@
 {
   "counts": {
-    "documents": 2,
-    "generatedAnswers": 3,
-    "guides": 1,
-    "questions": 3,
-    "translatedQuestions": 3,
-    "workProjects": 1
+    "documents": 6,
+    "generatedAnswers": 10,
+    "guides": 2,
+    "questions": 10,
+    "translatedQuestions": 10,
+    "workProjects": 2
   },
   "embeddingError": "",
-  "embeddingModel": "demo-static",
+  "embeddingModel": "demo-rag-embed-v2",
   "models": ["gpt-5.4"],
   "reasoningEfforts": ["low", "medium", "high", "xhigh"],
-  "retrievalMode": "demo-static",
+  "retrievalMode": "demo-static-rag",
   "workIndexSummary": {
-    "indexed": 1,
-    "total": 1
+    "indexed": 2,
+    "total": 2
   }
 }

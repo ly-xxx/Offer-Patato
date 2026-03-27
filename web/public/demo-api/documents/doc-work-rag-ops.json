@@ -1,0 +1,83 @@
+{
+  "id": "doc-work-rag-ops",
+  "kind": "work",
+  "ext": "md",
+  "path": "mywork/rag-compass/ops/indexing-runbook.md",
+  "relPath": "rag-compass/ops/indexing-runbook.md",
+  "sourceId": "demo-mywork",
+  "title": "RAGCompass 索引运维 Runbook（Demo）",
+  "updatedAt": "2026-03-27T09:55:00.000Z",
+  "watchPath": null,
+  "meta": {
+    "project": "RAGCompass",
+    "oncall": "search-platform"
+  },
+  "content": "# RAGCompass 索引运维 Runbook\n\n## 增量流程\n日志抽取 -> 去重 -> 切片 -> 向量化 -> 双写索引 -> 健康检查。\n\n## 回滚策略\n保留最近 5 个可用快照，异常时自动切回上个稳定版本。\n\n## 降级策略\n重排超时则仅返回混合召回结果，并降低上下文窗口。",
+  "sections": [
+    {
+      "anchor": "ops-incremental",
+      "heading": "增量流程",
+      "level": 2,
+      "startLine": 3,
+      "endLine": 6,
+      "knowledgeHitCount": 2,
+      "content": "增量任务采用异步批次执行并记录批次状态。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-9",
+          "text": "索引增量更新失败时怎么回滚和重放？",
+          "displayText": "索引增量更新失败时怎么回滚和重放？",
+          "difficulty": "medium",
+          "score": 0.94,
+          "questionType": "ops",
+          "translatedText": "索引增量更新失败时怎么回滚和重放？",
+          "isRevisited": false,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:16:00.000Z",
+          "generated": {
+            "elevator_pitch": "批次化+快照化回滚。",
+            "full_answer_markdown": "失败后回滚到稳定快照，按批次日志幂等重放。",
+            "work_story": "凌晨故障时 8 分钟恢复服务。",
+            "work_evidence_status": "direct",
+            "follow_ups": ["幂等键如何设计？"],
+            "missing_basics": []
+          }
+        }
+      ]
+    },
+    {
+      "anchor": "ops-cost",
+      "heading": "降级与成本",
+      "level": 2,
+      "startLine": 8,
+      "endLine": 10,
+      "knowledgeHitCount": 2,
+      "content": "重排超时或高负载时触发降级，并优先保障可用性与成本。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-10",
+          "text": "RAG 场景下怎么做 token 成本优化？",
+          "displayText": "RAG 场景下怎么做 token 成本优化？",
+          "difficulty": "medium",
+          "score": 0.9,
+          "questionType": "cost",
+          "translatedText": "RAG 场景下怎么做 token 成本优化？",
+          "isRevisited": false,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:18:00.000Z",
+          "generated": {
+            "elevator_pitch": "缓存 + 压缩 + 分级路由。",
+            "full_answer_markdown": "热门 query 走缓存，长上下文先摘要，再按价值选择模型。",
+            "work_story": "这套策略让月度 token 成本下降约 35%。",
+            "work_evidence_status": "direct",
+            "follow_ups": ["缓存污染如何避免？"],
+            "missing_basics": []
+          }
+        }
+      ]
+    }
+  ],
+  "looseRelatedQuestions": []
+}

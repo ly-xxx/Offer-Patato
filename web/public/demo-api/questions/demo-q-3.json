@@ -6,8 +6,8 @@
   "difficulty": "easy",
   "questionType": "frontend",
   "sourceId": "demo-qbank-source",
-  "sourcePath": "question-bank/demo.md",
-  "sourceTitle": "Demo 面经题库",
+  "sourcePath": "question-bank/frontend.md",
+  "sourceTitle": "Demo 面经题库 · 前端",
   "metadata": {
     "primaryCategoryId": "frontend",
     "primaryCategoryLabel": "前端工程",
@@ -33,46 +33,62 @@
     "status": "ready",
     "updatedAt": "2026-03-27T10:04:00.000Z",
     "output": {
-      "elevator_pitch": "运行时配置适配静态托管环境。",
-      "full_answer_markdown": "不重新构建即可切环境，适合 GitHub Pages 这类静态部署。",
-      "work_story": "我们把 API/WS 地址解析改成 runtime-config，在上线后可直接改配置。",
+      "elevator_pitch": "运行时配置适合 Pages",
+      "full_answer_markdown": "运行时配置让你在不重建的前提下切 API/环境，适合静态托管和演示站。",
+      "work_story": "Pages 发布时只替换 runtime-config.json 即可切 demo/prod 模式。",
       "work_evidence_status": "direct",
-      "follow_ups": ["缓存失效如何处理？", "配置拉取失败怎么兜底？"],
+      "work_evidence_note": "证据来自 OfferLoom 架构笔记（Demo） 与对应主线章节。",
+      "knowledge_map": [
+        {
+          "concept": "前端工程",
+          "confidence": "high",
+          "why_it_matters": "运行时配置适合 Pages"
+        }
+      ],
+      "follow_ups": [
+        "配置拉取失败怎么兜底？",
+        "如何防止误改配置？"
+      ],
       "missing_basics": []
     },
     "citations": [
+      {
+        "kind": "guide",
+        "label": "索引与回滚",
+        "path": "doc-guide-rag-eval"
+      },
       {
         "kind": "work",
         "label": "OfferLoom 架构笔记（Demo）",
         "path": "offerloom/architecture-notes.md"
       }
     ],
-    "outputMarkdown": "不重新构建即可切环境，适合 GitHub Pages 这类静态部署。"
+    "outputMarkdown": "运行时配置让你在不重建的前提下切 API/环境，适合静态托管和演示站。"
   },
   "guideMatches": [
     {
-      "id": "gm-demo-3",
-      "documentId": "doc-guide-llm",
-      "documentTitle": "LLM 与 RAG 面试主线（Demo）",
-      "heading": "运行时配置",
-      "anchor": "runtime-config",
-      "content": "Pages 场景下推荐使用运行时配置，避免每次改环境都重新构建。",
-      "path": "sources/documents/demo/llm-guide.md",
-      "relPath": "demo/llm-guide.md",
-      "startLine": 13,
-      "endLine": 15,
+      "id": "gm-demo-q-3",
+      "documentId": "doc-guide-rag-eval",
+      "documentTitle": "RAG 评估、上线与运维（Demo）",
+      "heading": "索引与回滚",
+      "anchor": "index-rollback",
+      "content": "运行时配置让你在不重建的前提下切 API/环境，适合静态托管和演示站。",
+      "path": "sources/documents/demo/rag-eval-and-ops.md",
+      "relPath": "demo/rag-eval-and-ops.md",
+      "startLine": 3,
+      "endLine": 8,
       "level": 2,
-      "score": 0.88
+      "score": 0.62
     }
   ],
   "guideFallbackMatches": [],
   "workMatches": [
     {
-      "id": "wm-demo-3",
+      "id": "wm-demo-q-3",
       "title": "OfferLoom 架构笔记（Demo）",
       "path": "mywork/offerloom/architecture-notes.md",
       "relPath": "offerloom/architecture-notes.md",
-      "score": 0.8,
+      "score": 0.72,
       "meta": {
         "project": "OfferLoom"
       }

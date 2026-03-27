@@ -6,8 +6,8 @@
   "difficulty": "hard",
   "questionType": "architecture",
   "sourceId": "demo-qbank-source",
-  "sourcePath": "question-bank/demo.md",
-  "sourceTitle": "Demo 面经题库",
+  "sourcePath": "question-bank/system-scale.md",
+  "sourceTitle": "Demo 面经题库 · 系统扩展",
   "metadata": {
     "primaryCategoryId": "system",
     "primaryCategoryLabel": "系统设计",
@@ -33,46 +33,62 @@
     "status": "ready",
     "updatedAt": "2026-03-27T10:02:00.000Z",
     "output": {
-      "elevator_pitch": "先治检索与队列瓶颈，再扩容。",
-      "full_answer_markdown": "优先定位 I/O 与检索吞吐，再拆任务队列并加缓存。",
-      "work_story": "我们把索引、生成、导入拆成独立任务，提高了可伸缩性。",
+      "elevator_pitch": "高并发扩展优先级",
+      "full_answer_markdown": "优先处理检索与重排瓶颈，其次隔离任务队列，最后水平扩容生成与索引模块。",
+      "work_story": "OfferLoom 通过任务类型拆分后，峰值时延下降明显。",
       "work_evidence_status": "adjacent",
-      "follow_ups": ["容量预估怎么做？", "失败任务怎么补偿？"],
+      "work_evidence_note": "证据来自 OfferLoom 架构笔记（Demo） 与对应主线章节。",
+      "knowledge_map": [
+        {
+          "concept": "系统设计",
+          "confidence": "high",
+          "why_it_matters": "高并发扩展优先级"
+        }
+      ],
+      "follow_ups": [
+        "如何做容量预估？",
+        "出现队头阻塞怎么处理？"
+      ],
       "missing_basics": []
     },
     "citations": [
       {
         "kind": "guide",
-        "label": "LLM 与 RAG 面试主线（Demo）",
-        "path": "demo/llm-guide.md"
+        "label": "召回策略",
+        "path": "doc-guide-rag-playbook"
+      },
+      {
+        "kind": "work",
+        "label": "OfferLoom 架构笔记（Demo）",
+        "path": "offerloom/architecture-notes.md"
       }
     ],
-    "outputMarkdown": "优先定位 I/O 与检索吞吐，再拆任务队列并加缓存。"
+    "outputMarkdown": "优先处理检索与重排瓶颈，其次隔离任务队列，最后水平扩容生成与索引模块。"
   },
   "guideMatches": [
     {
-      "id": "gm-demo-2",
-      "documentId": "doc-guide-llm",
-      "documentTitle": "LLM 与 RAG 面试主线（Demo）",
-      "heading": "系统扩展策略",
-      "anchor": "scale-strategy",
-      "content": "并发上升时先处理检索层和任务队列，再做模块化扩展。",
-      "path": "sources/documents/demo/llm-guide.md",
-      "relPath": "demo/llm-guide.md",
-      "startLine": 8,
-      "endLine": 11,
+      "id": "gm-demo-q-2",
+      "documentId": "doc-guide-rag-playbook",
+      "documentTitle": "RAG 架构与检索策略（Demo）",
+      "heading": "召回策略",
+      "anchor": "retrieval-strategy",
+      "content": "优先处理检索与重排瓶颈，其次隔离任务队列，最后水平扩容生成与索引模块。",
+      "path": "sources/documents/demo/rag-playbook.md",
+      "relPath": "demo/rag-playbook.md",
+      "startLine": 3,
+      "endLine": 8,
       "level": 2,
-      "score": 0.9
+      "score": 0.86
     }
   ],
   "guideFallbackMatches": [],
   "workMatches": [
     {
-      "id": "wm-demo-2",
+      "id": "wm-demo-q-2",
       "title": "OfferLoom 架构笔记（Demo）",
       "path": "mywork/offerloom/architecture-notes.md",
       "relPath": "offerloom/architecture-notes.md",
-      "score": 0.78,
+      "score": 0.84,
       "meta": {
         "project": "OfferLoom"
       }

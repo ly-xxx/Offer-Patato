@@ -1,0 +1,83 @@
+{
+  "id": "doc-work-rag-architecture",
+  "kind": "work",
+  "ext": "md",
+  "path": "mywork/rag-compass/architecture/overview.md",
+  "relPath": "rag-compass/architecture/overview.md",
+  "sourceId": "demo-mywork",
+  "title": "RAGCompass 架构设计（Demo）",
+  "updatedAt": "2026-03-27T09:48:00.000Z",
+  "watchPath": null,
+  "meta": {
+    "project": "RAGCompass",
+    "stage": "beta",
+    "domain": "enterprise-knowledge-assistant"
+  },
+  "content": "# RAGCompass 架构设计\n\n## 目标\n面向企业知识问答，兼顾可追溯、低延迟和成本可控。\n\n## Pipeline\nQuery Rewrite -> Hybrid Recall -> Rerank -> Citation Guardrail -> Answer Generation。\n\n## Infra\nMilvus + Postgres + Redis + Kafka，支持增量索引与异步评估。",
+  "sections": [
+    {
+      "anchor": "ragcompass-goal",
+      "heading": "目标",
+      "level": 2,
+      "startLine": 3,
+      "endLine": 5,
+      "knowledgeHitCount": 1,
+      "content": "可追溯、低延迟和成本可控是核心指标。",
+      "relatedQuestions": []
+    },
+    {
+      "anchor": "ragcompass-pipeline",
+      "heading": "Pipeline",
+      "level": 2,
+      "startLine": 7,
+      "endLine": 9,
+      "knowledgeHitCount": 3,
+      "content": "Query Rewrite -> Hybrid Recall -> Rerank -> Citation Guardrail -> Answer Generation。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-4",
+          "text": "召回链路怎么兼顾延迟和覆盖率？",
+          "displayText": "召回链路怎么兼顾延迟和覆盖率？",
+          "difficulty": "hard",
+          "score": 0.96,
+          "questionType": "retrieval",
+          "translatedText": "召回链路怎么兼顾延迟和覆盖率？",
+          "isRevisited": false,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:06:00.000Z",
+          "generated": {
+            "elevator_pitch": "两阶段召回+阈值裁剪。",
+            "full_answer_markdown": "先保证覆盖，再根据时延预算动态裁剪。",
+            "work_story": "RAGCompass 的 p95 从 1.8s 降到 1.1s。",
+            "work_evidence_status": "direct",
+            "follow_ups": ["哪些 query 走降级链路？"],
+            "missing_basics": []
+          }
+        },
+        {
+          "id": "demo-q-5",
+          "text": "Chunk 策略怎么做，如何避免 lost-in-the-middle？",
+          "displayText": "Chunk 策略怎么做，如何避免 lost-in-the-middle？",
+          "difficulty": "medium",
+          "score": 0.9,
+          "questionType": "retrieval",
+          "translatedText": "Chunk 策略怎么做，如何避免 lost-in-the-middle？",
+          "isRevisited": false,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:08:00.000Z",
+          "generated": {
+            "elevator_pitch": "结构切片+位置重排。",
+            "full_answer_markdown": "按语义和标题切片，并做位置校正避免中段丢失。",
+            "work_story": "我们为法规类长文引入标题锚点重排。",
+            "work_evidence_status": "direct",
+            "follow_ups": ["重叠比例如何定？"],
+            "missing_basics": []
+          }
+        }
+      ]
+    }
+  ],
+  "looseRelatedQuestions": []
+}

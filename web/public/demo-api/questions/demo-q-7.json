@@ -1,0 +1,98 @@
+{
+  "id": "demo-q-7",
+  "text": "你们怎么评估 hallucination 和 groundedness？",
+  "displayText": "你们怎么评估 hallucination 和 groundedness？",
+  "translatedText": "你们怎么评估 hallucination 和 groundedness？",
+  "difficulty": "hard",
+  "questionType": "evaluation",
+  "sourceId": "demo-qbank-source",
+  "sourcePath": "question-bank/evaluation.md",
+  "sourceTitle": "Demo 面经题库 · 评估",
+  "metadata": {
+    "primaryCategoryId": "eval",
+    "primaryCategoryLabel": "评估与质量",
+    "primaryCategoryOrder": 40
+  },
+  "generatedCount": 1,
+  "lastGeneratedAt": "2026-03-27T10:12:00.000Z",
+  "workEvidenceStatus": "direct",
+  "generationHistory": [
+    {
+      "id": "gen-demo-q-7",
+      "model": "gpt-5.4",
+      "reasoningEffort": "high",
+      "status": "ready",
+      "updatedAt": "2026-03-27T10:12:00.000Z"
+    }
+  ],
+  "generated": {
+    "id": "gen-demo-q-7",
+    "questionId": "demo-q-7",
+    "model": "gpt-5.4",
+    "reasoningEffort": "high",
+    "status": "ready",
+    "updatedAt": "2026-03-27T10:12:00.000Z",
+    "output": {
+      "elevator_pitch": "hallucination 评估方法",
+      "full_answer_markdown": "通过引用一致性、事实核验和人工抽检联合评估 groundedness 与幻觉率。",
+      "work_story": "把误判样本回灌测试集，形成每周评测闭环。",
+      "work_evidence_status": "direct",
+      "work_evidence_note": "证据来自 RAGCompass 离线评估报告（Demo） 与对应主线章节。",
+      "knowledge_map": [
+        {
+          "concept": "评估与质量",
+          "confidence": "high",
+          "why_it_matters": "hallucination 评估方法"
+        }
+      ],
+      "follow_ups": [
+        "评估集污染如何避免？",
+        "上线阈值怎么定？"
+      ],
+      "missing_basics": []
+    },
+    "citations": [
+      {
+        "kind": "guide",
+        "label": "质量评估框架",
+        "path": "doc-guide-rag-eval"
+      },
+      {
+        "kind": "work",
+        "label": "RAGCompass 离线评估报告（Demo）",
+        "path": "rag-compass/eval/offline-report.md"
+      }
+    ],
+    "outputMarkdown": "通过引用一致性、事实核验和人工抽检联合评估 groundedness 与幻觉率。"
+  },
+  "guideMatches": [
+    {
+      "id": "gm-demo-q-7",
+      "documentId": "doc-guide-rag-eval",
+      "documentTitle": "RAG 评估、上线与运维（Demo）",
+      "heading": "质量评估框架",
+      "anchor": "eval-framework",
+      "content": "通过引用一致性、事实核验和人工抽检联合评估 groundedness 与幻觉率。",
+      "path": "sources/documents/demo/rag-eval-and-ops.md",
+      "relPath": "demo/rag-eval-and-ops.md",
+      "startLine": 3,
+      "endLine": 8,
+      "level": 2,
+      "score": 0.94
+    }
+  ],
+  "guideFallbackMatches": [],
+  "workMatches": [
+    {
+      "id": "wm-demo-q-7",
+      "title": "RAGCompass 离线评估报告（Demo）",
+      "path": "mywork/rag-compass/eval/offline-report.md",
+      "relPath": "rag-compass/eval/offline-report.md",
+      "score": 0.95,
+      "meta": {
+        "project": "RAGCompass"
+      }
+    }
+  ],
+  "workHintMatches": []
+}

@@ -1,10 +1,10 @@
 {
-  "id": "demo-q-1",
-  "text": "为什么选择 RAG 而不是直接微调？",
-  "displayText": "为什么选择 RAG 而不是直接微调？",
-  "translatedText": "为什么选择 RAG 而不是直接微调？",
-  "difficulty": "medium",
-  "questionType": "system",
+  "id": "demo-q-4",
+  "text": "召回链路怎么兼顾延迟和覆盖率？",
+  "displayText": "召回链路怎么兼顾延迟和覆盖率？",
+  "translatedText": "召回链路怎么兼顾延迟和覆盖率？",
+  "difficulty": "hard",
+  "questionType": "retrieval",
   "sourceId": "demo-qbank-source",
   "sourcePath": "question-bank/rag-core.md",
   "sourceTitle": "Demo 面经题库 · RAG 核心",
@@ -14,47 +14,47 @@
     "primaryCategoryOrder": 10
   },
   "generatedCount": 1,
-  "lastGeneratedAt": "2026-03-27T10:00:00.000Z",
+  "lastGeneratedAt": "2026-03-27T10:06:00.000Z",
   "workEvidenceStatus": "direct",
   "generationHistory": [
     {
-      "id": "gen-demo-q-1",
+      "id": "gen-demo-q-4",
       "model": "gpt-5.4",
-      "reasoningEffort": "medium",
+      "reasoningEffort": "high",
       "status": "ready",
-      "updatedAt": "2026-03-27T10:00:00.000Z"
+      "updatedAt": "2026-03-27T10:06:00.000Z"
     }
   ],
   "generated": {
-    "id": "gen-demo-q-1",
-    "questionId": "demo-q-1",
+    "id": "gen-demo-q-4",
+    "questionId": "demo-q-4",
     "model": "gpt-5.4",
-    "reasoningEffort": "medium",
+    "reasoningEffort": "high",
     "status": "ready",
-    "updatedAt": "2026-03-27T10:00:00.000Z",
+    "updatedAt": "2026-03-27T10:06:00.000Z",
     "output": {
-      "elevator_pitch": "RAG 优先于微调的取舍",
-      "full_answer_markdown": "在知识高频变化和合规可追溯场景下，RAG 比重训更稳，更新链路也更短。",
-      "work_story": "RAGCompass 每天增量同步企业知识库，24 小时内可生效。",
+      "elevator_pitch": "召回延迟与覆盖率平衡",
+      "full_answer_markdown": "先宽召回保证覆盖，再用重排和动态阈值控制延迟，按 query 类型分层降级。",
+      "work_story": "RAGCompass 在 FAQ 类 query 上启用轻量路径，复杂 query 才走重排。",
       "work_evidence_status": "direct",
       "work_evidence_note": "证据来自 RAGCompass 架构设计（Demo） 与对应主线章节。",
       "knowledge_map": [
         {
           "concept": "RAG 基础",
           "confidence": "high",
-          "why_it_matters": "RAG 优先于微调的取舍"
+          "why_it_matters": "召回延迟与覆盖率平衡"
         }
       ],
       "follow_ups": [
-        "如果知识域稳定，还选 RAG 吗？",
-        "你们怎么做知识时效 SLA？"
+        "topk 动态策略基于哪些特征？",
+        "重排超时时怎么保证可用性？"
       ],
       "missing_basics": []
     },
     "citations": [
       {
         "kind": "guide",
-        "label": "架构总览",
+        "label": "召回策略",
         "path": "doc-guide-rag-playbook"
       },
       {
@@ -63,32 +63,32 @@
         "path": "rag-compass/architecture/overview.md"
       }
     ],
-    "outputMarkdown": "在知识高频变化和合规可追溯场景下，RAG 比重训更稳，更新链路也更短。"
+    "outputMarkdown": "先宽召回保证覆盖，再用重排和动态阈值控制延迟，按 query 类型分层降级。"
   },
   "guideMatches": [
     {
-      "id": "gm-demo-q-1",
+      "id": "gm-demo-q-4",
       "documentId": "doc-guide-rag-playbook",
       "documentTitle": "RAG 架构与检索策略（Demo）",
-      "heading": "架构总览",
-      "anchor": "rag-arch-overview",
-      "content": "在知识高频变化和合规可追溯场景下，RAG 比重训更稳，更新链路也更短。",
+      "heading": "召回策略",
+      "anchor": "retrieval-strategy",
+      "content": "先宽召回保证覆盖，再用重排和动态阈值控制延迟，按 query 类型分层降级。",
       "path": "sources/documents/demo/rag-playbook.md",
       "relPath": "demo/rag-playbook.md",
       "startLine": 3,
       "endLine": 8,
       "level": 2,
-      "score": 0.93
+      "score": 0.95
     }
   ],
   "guideFallbackMatches": [],
   "workMatches": [
     {
-      "id": "wm-demo-q-1",
+      "id": "wm-demo-q-4",
       "title": "RAGCompass 架构设计（Demo）",
       "path": "mywork/rag-compass/architecture/overview.md",
       "relPath": "rag-compass/architecture/overview.md",
-      "score": 0.88,
+      "score": 0.96,
       "meta": {
         "project": "RAGCompass"
       }

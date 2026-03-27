@@ -1,0 +1,72 @@
+{
+  "id": "doc-work-rag-evaluation",
+  "kind": "work",
+  "ext": "md",
+  "path": "mywork/rag-compass/eval/offline-report.md",
+  "relPath": "rag-compass/eval/offline-report.md",
+  "sourceId": "demo-mywork",
+  "title": "RAGCompass 离线评估报告（Demo）",
+  "updatedAt": "2026-03-27T09:52:00.000Z",
+  "watchPath": null,
+  "meta": {
+    "project": "RAGCompass",
+    "reportVersion": "2026Q1"
+  },
+  "content": "# RAGCompass 离线评估报告\n\n- Recall@20: 0.87\n- nDCG@10: 0.81\n- Groundedness: 0.92\n- Hallucination rate: 3.8%\n\n评估样本覆盖产品文档、FAQ、事故复盘。",
+  "sections": [
+    {
+      "anchor": "eval-metrics",
+      "heading": "核心指标",
+      "level": 2,
+      "startLine": 3,
+      "endLine": 8,
+      "knowledgeHitCount": 2,
+      "content": "评估维度包括召回、排序、可追溯和幻觉率。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-6",
+          "text": "为什么你们选 cross-encoder reranker，不是只用向量相似度？",
+          "displayText": "为什么你们选 cross-encoder reranker，不是只用向量相似度？",
+          "difficulty": "medium",
+          "score": 0.91,
+          "questionType": "evaluation",
+          "translatedText": "为什么你们选 cross-encoder reranker，不是只用向量相似度？",
+          "isRevisited": true,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:10:00.000Z",
+          "generated": {
+            "elevator_pitch": "用数据证明 rerank 价值。",
+            "full_answer_markdown": "我们先离线对比 MRR/nDCG，再决定是否上线 reranker。",
+            "work_story": "cross-encoder 在长尾 query 的提升更明显。",
+            "work_evidence_status": "direct",
+            "follow_ups": ["线上 A/B 怎么做？"],
+            "missing_basics": []
+          }
+        },
+        {
+          "id": "demo-q-7",
+          "text": "你们怎么评估 hallucination 和 groundedness？",
+          "displayText": "你们怎么评估 hallucination 和 groundedness？",
+          "difficulty": "hard",
+          "score": 0.95,
+          "questionType": "evaluation",
+          "translatedText": "你们怎么评估 hallucination 和 groundedness？",
+          "isRevisited": true,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:12:00.000Z",
+          "generated": {
+            "elevator_pitch": "自动评测 + 人审抽检。",
+            "full_answer_markdown": "自动检查引用一致性并做人工复核，持续修正数据与提示词。",
+            "work_story": "我们把误报样本回灌到评估集，每周迭代。",
+            "work_evidence_status": "direct",
+            "follow_ups": ["评估集怎么防污染？"],
+            "missing_basics": []
+          }
+        }
+      ]
+    }
+  ],
+  "looseRelatedQuestions": []
+}

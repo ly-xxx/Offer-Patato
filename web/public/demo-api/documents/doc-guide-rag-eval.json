@@ -1,0 +1,155 @@
+{
+  "id": "doc-guide-rag-eval",
+  "kind": "guide",
+  "ext": "md",
+  "path": "sources/documents/demo/rag-eval-and-ops.md",
+  "relPath": "demo/rag-eval-and-ops.md",
+  "sourceId": "demo-guide-source",
+  "title": "RAG 评估、上线与运维（Demo）",
+  "updatedAt": "2026-03-27T09:36:00.000Z",
+  "watchPath": null,
+  "meta": {},
+  "content": "# RAG 评估、上线与运维\n\n## 质量评估框架\n采用 Recall@k、nDCG、Groundedness、Hallucination rate 四维评估。\n\n## 多租户权限模型\n租户级索引隔离 + 文档 ACL + 查询时二次过滤。\n\n## 索引与回滚\n增量批次采用两阶段提交，失败时按批次号回滚并重放。",
+  "sections": [
+    {
+      "anchor": "eval-framework",
+      "heading": "质量评估框架",
+      "level": 2,
+      "startLine": 3,
+      "endLine": 6,
+      "knowledgeHitCount": 2,
+      "content": "采用 Recall@k、nDCG、Groundedness、Hallucination rate 四维评估。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-6",
+          "text": "为什么你们选 cross-encoder reranker，不是只用向量相似度？",
+          "displayText": "为什么你们选 cross-encoder reranker，不是只用向量相似度？",
+          "difficulty": "medium",
+          "score": 0.9,
+          "questionType": "evaluation",
+          "translatedText": "为什么你们选 cross-encoder reranker，不是只用向量相似度？",
+          "isRevisited": false,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:10:00.000Z",
+          "generated": {
+            "elevator_pitch": "相关性质量提升显著。",
+            "full_answer_markdown": "Cross-encoder 在 hard negative 上明显优于单纯向量相似度。",
+            "work_story": "我们离线 A/B 中 MRR 提升 12%。",
+            "work_evidence_status": "direct",
+            "follow_ups": ["延迟增加怎么补？", "是否蒸馏轻量模型？"],
+            "missing_basics": []
+          }
+        },
+        {
+          "id": "demo-q-7",
+          "text": "你们怎么评估 hallucination 和 groundedness？",
+          "displayText": "你们怎么评估 hallucination 和 groundedness？",
+          "difficulty": "hard",
+          "score": 0.94,
+          "questionType": "evaluation",
+          "translatedText": "你们怎么评估 hallucination 和 groundedness？",
+          "isRevisited": false,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:12:00.000Z",
+          "generated": {
+            "elevator_pitch": "引用一致性 + 人审抽检双轨。",
+            "full_answer_markdown": "自动评测看引用命中和语义一致性，再做人审抽检闭环。",
+            "work_story": "RAGCompass 每周固定抽检 200 条问答。",
+            "work_evidence_status": "adjacent",
+            "follow_ups": ["阈值怎么设？", "误报如何处理？"],
+            "missing_basics": []
+          }
+        }
+      ]
+    },
+    {
+      "anchor": "tenant-acl",
+      "heading": "多租户权限模型",
+      "level": 2,
+      "startLine": 8,
+      "endLine": 11,
+      "knowledgeHitCount": 2,
+      "content": "租户级索引隔离 + 文档 ACL + 查询时二次过滤。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-8",
+          "text": "多租户文档怎么做权限隔离，避免串库？",
+          "displayText": "多租户文档怎么做权限隔离，避免串库？",
+          "difficulty": "hard",
+          "score": 0.92,
+          "questionType": "security",
+          "translatedText": "多租户文档怎么做权限隔离，避免串库？",
+          "isRevisited": false,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:14:00.000Z",
+          "generated": {
+            "elevator_pitch": "双重过滤保证安全边界。",
+            "full_answer_markdown": "索引分租户隔离，召回后再走 ACL 过滤并记录审计日志。",
+            "work_story": "我们在网关和检索层都做了 tenant_id 校验。",
+            "work_evidence_status": "direct",
+            "follow_ups": ["跨租户共享文档如何做？", "审计日志保留多久？"],
+            "missing_basics": []
+          }
+        }
+      ]
+    },
+    {
+      "anchor": "index-rollback",
+      "heading": "索引与回滚",
+      "level": 2,
+      "startLine": 13,
+      "endLine": 16,
+      "knowledgeHitCount": 2,
+      "content": "增量批次采用两阶段提交，失败时按批次号回滚并重放。",
+      "relatedQuestions": [
+        {
+          "id": "demo-q-9",
+          "text": "索引增量更新失败时怎么回滚和重放？",
+          "displayText": "索引增量更新失败时怎么回滚和重放？",
+          "difficulty": "medium",
+          "score": 0.93,
+          "questionType": "ops",
+          "translatedText": "索引增量更新失败时怎么回滚和重放？",
+          "isRevisited": false,
+          "generatedCount": 1,
+          "generatedStatus": "ready",
+          "lastGeneratedAt": "2026-03-27T10:16:00.000Z",
+          "generated": {
+            "elevator_pitch": "批次化提交 + 可重放日志。",
+            "full_answer_markdown": "每个批次带版本号，提交失败回滚到上个稳定版本并重放事件流。",
+            "work_story": "RAGCompass 夜间增量任务失败后可 10 分钟恢复。",
+            "work_evidence_status": "direct",
+            "follow_ups": ["重放幂等怎么保证？", "回滚期间如何服务？"],
+            "missing_basics": []
+          }
+        }
+      ]
+    }
+  ],
+  "looseRelatedQuestions": [
+    {
+      "id": "demo-q-10",
+      "text": "RAG 场景下怎么做 token 成本优化？",
+      "displayText": "RAG 场景下怎么做 token 成本优化？",
+      "difficulty": "medium",
+      "score": 0.77,
+      "questionType": "cost",
+      "translatedText": "RAG 场景下怎么做 token 成本优化？",
+      "isRevisited": true,
+      "generatedCount": 1,
+      "generatedStatus": "ready",
+      "lastGeneratedAt": "2026-03-27T10:18:00.000Z",
+      "generated": {
+        "elevator_pitch": "缓存、压缩和分级模型。",
+        "full_answer_markdown": "通过 query cache、摘要压缩和模型分级路由可以显著降本。",
+        "work_story": "RAGCompass 在重复查询上命中缓存后成本下降 37%。",
+        "work_evidence_status": "adjacent",
+        "follow_ups": ["缓存一致性怎么做？"],
+        "missing_basics": []
+      }
+    }
+  ]
+}
