@@ -68,7 +68,7 @@ export function SettingsDrawer(props: {
 
   return (
     <OverlayDrawer
-      description="源 / 外观 / 索引"
+      description="文字 / 主题 / 数据"
       icon={<Settings2 size={18} />}
       onClose={props.onClose}
       open={props.open}
@@ -78,6 +78,99 @@ export function SettingsDrawer(props: {
         <div className="control-empty">正在载入来源配置…</div>
       ) : (
         <div className="control-panel-body">
+          <section className="control-card">
+            <div className="control-card-head compact">
+              <div className="section-headline">
+                <span className="section-head-icon" aria-hidden="true">Aa</span>
+                <strong>文字</strong>
+              </div>
+            </div>
+
+            <TypographySlider
+              icon="Aa"
+              label="正文"
+              max={22}
+              min={15.5}
+              onChange={(value) => props.onTypographyChange({ ...props.typography, docFontSize: value })}
+              step={0.5}
+              value={props.typography.docFontSize}
+            />
+            <TypographySlider
+              icon="H"
+              label="标题倍率"
+              max={1.24}
+              min={0.9}
+              onChange={(value) => props.onTypographyChange({ ...props.typography, docHeadingScale: value })}
+              step={0.01}
+              value={props.typography.docHeadingScale}
+            />
+            <TypographySlider
+              icon="≣"
+              label="侧边栏"
+              max={16}
+              min={11.5}
+              onChange={(value) => props.onTypographyChange({ ...props.typography, sidebarFontSize: value })}
+              step={0.5}
+              value={props.typography.sidebarFontSize}
+            />
+            <TypographySlider
+              icon="✦"
+              label="答案卡片"
+              max={18}
+              min={12.5}
+              onChange={(value) => props.onTypographyChange({ ...props.typography, answerFontSize: value })}
+              step={0.5}
+              value={props.typography.answerFontSize}
+            />
+          </section>
+
+          <section className="control-card">
+            <div className="control-card-head compact">
+              <div className="section-headline">
+                <span className="section-head-icon" aria-hidden="true">
+                  <Palette size={15} />
+                </span>
+                <strong>主题</strong>
+              </div>
+            </div>
+
+            <div className="theme-groups">
+              {Object.entries(themeGroups).map(([groupLabel, themes]) => (
+                <section key={groupLabel} className="theme-group">
+                  <div className="theme-group-title">{groupLabel}</div>
+                  <div className="theme-picker-grid">
+                    {themes.map((theme) => (
+                      <button
+                        key={theme.id}
+                        className={`theme-picker-card ${props.themeId === theme.id ? 'active' : ''}`}
+                        onClick={() => props.onThemeChange(theme.id)}
+                      >
+                        <div
+                          className="theme-preview-strip"
+                          style={{
+                            background: `linear-gradient(135deg, ${theme.swatches[0]}, ${theme.swatches[1]} 52%, ${theme.swatches[2]})`
+                          }}
+                        />
+                        <div className="theme-picker-head">
+                          <div className="theme-picker-label">
+                            <Palette size={14} />
+                            <strong>{theme.label}</strong>
+                          </div>
+                          <span>{theme.hint}</span>
+                        </div>
+                        <div className="theme-swatch-row">
+                          {theme.swatches.map((color) => (
+                            <span key={`${theme.id}-${color}`} className="theme-swatch-dot" style={{ background: color }} />
+                          ))}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          </section>
+
           <section className="control-card">
             <div className="control-card-head compact">
               <div className="section-headline">
@@ -144,90 +237,6 @@ export function SettingsDrawer(props: {
                 重建
               </button>
             </div>
-          </section>
-
-          <section className="control-card">
-            <div className="control-card-head compact">
-              <div className="section-headline">
-                <span className="section-head-icon" aria-hidden="true">
-                  <Palette size={15} />
-                </span>
-                <strong>外观</strong>
-              </div>
-            </div>
-
-            <div className="theme-groups">
-              {Object.entries(themeGroups).map(([groupLabel, themes]) => (
-                <section key={groupLabel} className="theme-group">
-                  <div className="theme-group-title">{groupLabel}</div>
-                  <div className="theme-picker-grid">
-                    {themes.map((theme) => (
-                      <button
-                        key={theme.id}
-                        className={`theme-picker-card ${props.themeId === theme.id ? 'active' : ''}`}
-                        onClick={() => props.onThemeChange(theme.id)}
-                      >
-                        <div
-                          className="theme-preview-strip"
-                          style={{
-                            background: `linear-gradient(135deg, ${theme.swatches[0]}, ${theme.swatches[1]} 52%, ${theme.swatches[2]})`
-                          }}
-                        />
-                        <div className="theme-picker-head">
-                          <div className="theme-picker-label">
-                            <Palette size={14} />
-                            <strong>{theme.label}</strong>
-                          </div>
-                          <span>{theme.hint}</span>
-                        </div>
-                        <div className="theme-swatch-row">
-                          {theme.swatches.map((color) => (
-                            <span key={`${theme.id}-${color}`} className="theme-swatch-dot" style={{ background: color }} />
-                          ))}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
-
-            <TypographySlider
-              icon="Aa"
-              label="正文"
-              max={22}
-              min={15.5}
-              onChange={(value) => props.onTypographyChange({ ...props.typography, docFontSize: value })}
-              step={0.5}
-              value={props.typography.docFontSize}
-            />
-            <TypographySlider
-              icon="H"
-              label="标题倍率"
-              max={1.24}
-              min={0.9}
-              onChange={(value) => props.onTypographyChange({ ...props.typography, docHeadingScale: value })}
-              step={0.01}
-              value={props.typography.docHeadingScale}
-            />
-            <TypographySlider
-              icon="≣"
-              label="侧边栏"
-              max={16}
-              min={11.5}
-              onChange={(value) => props.onTypographyChange({ ...props.typography, sidebarFontSize: value })}
-              step={0.5}
-              value={props.typography.sidebarFontSize}
-            />
-            <TypographySlider
-              icon="✦"
-              label="答案卡片"
-              max={18}
-              min={12.5}
-              onChange={(value) => props.onTypographyChange({ ...props.typography, answerFontSize: value })}
-              step={0.5}
-              value={props.typography.answerFontSize}
-            />
           </section>
 
           {props.indexJob && (
