@@ -21,6 +21,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate Demo Fixtures
+        run: node scripts/validate-demo-api.mjs
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -42,6 +45,10 @@ jobs:
             "demoMode": true
           }
           EOF
+
+      - name: Verify Runtime Config
+        run: |
+          node -e "const fs=require('fs'); const conf=JSON.parse(fs.readFileSync('web/dist/runtime-config.json','utf8')); if(conf.demoMode!==true){throw new Error('demoMode must be true for Pages demo build')} console.log('runtime-config ok')"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

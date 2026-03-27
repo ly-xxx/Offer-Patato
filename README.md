@@ -27,6 +27,16 @@
   <a href="./docs/TROUBLESHOOTING.md">常见问题</a>
 </p>
 
+<p align="center">
+  <a href="https://ly-xxx.github.io/Offer-loom/">
+    <img src="https://img.shields.io/badge/ONLINE%20TRY%20NOW-GitHub%20Pages-ff5a1f?style=for-the-badge&logo=githubpages&logoColor=white" alt="Try OfferPotato Demo" />
+  </a>
+</p>
+
+<p align="center">
+  <strong><a href="https://ly-xxx.github.io/Offer-loom/">在线试用入口</a></strong>（无需本地安装）
+</p>
+
 **如果你正在准备技术面试，大概率会遇到这三个死局：**
 
 1. **“结合你的项目讲讲？”** —— 八股文背得再熟，面试官一问怎么落地到你的项目里，大脑直接空白。
