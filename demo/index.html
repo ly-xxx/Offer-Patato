@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OfferLoom Demo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="bg-glow bg-glow-a"></div>
+    <div class="bg-glow bg-glow-b"></div>
+
+    <header class="hero">
+      <p id="demo-badge" class="badge">Demo Mode</p>
+      <h1 id="site-title">OfferLoom 静态展示站</h1>
+      <p id="site-subtitle" class="subtitle">
+        只展示示例数据，不调用后端，不触发任何模型请求。
+      </p>
+      <div class="meta-row">
+        <span id="last-updated">更新时间: -</span>
+        <span>发布方式: GitHub Pages 自动同步</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <h2>全局概览</h2>
+        <div id="stats-grid" class="stats-grid"></div>
+      </section>
+
+      <section class="panel">
+        <h2>学习章节进度</h2>
+        <div id="chapter-list" class="chapter-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="row-head">
+          <h2>面经示例题</h2>
+          <div id="category-tabs" class="tabs"></div>
+        </div>
+        <div id="question-list" class="question-list"></div>
+      </section>
+
+      <section class="panel">
+        <h2>回答预览</h2>
+        <article id="answer-card" class="answer-card empty">
+          <p>点击上方任意题目，查看示例回答和项目映射。</p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>这是纯前端 PoC 页面，适合展示 UI 和数据结构，不会消耗模型 token。</p>
+    </footer>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

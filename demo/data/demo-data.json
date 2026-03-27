@@ -1,0 +1,78 @@
+{
+  "stats": [
+    { "label": "示例题数量", "value": 18 },
+    { "label": "覆盖章节", "value": 6 },
+    { "label": "样例项目映射", "value": 12 },
+    { "label": "当前模式", "value": "静态展示" }
+  ],
+  "chapters": [
+    { "id": "llm-basics", "title": "LLM 基础与对齐", "questionCount": 5, "progress": 78 },
+    { "id": "system-design", "title": "系统设计与扩展性", "questionCount": 4, "progress": 64 },
+    { "id": "rag", "title": "RAG 与检索工程", "questionCount": 3, "progress": 82 },
+    { "id": "agent", "title": "Agent 工作流", "questionCount": 2, "progress": 48 },
+    { "id": "frontend", "title": "前端工程化", "questionCount": 2, "progress": 91 },
+    { "id": "backend", "title": "后端稳定性", "questionCount": 2, "progress": 56 }
+  ],
+  "questions": [
+    {
+      "id": "q-1",
+      "category": "LLM",
+      "difficulty": "medium",
+      "chapter": "LLM 基础与对齐",
+      "title": "为什么你们没有直接微调，而选择了检索增强？",
+      "answer": "我们优先选择 RAG 是因为业务知识变化频率高，使用检索可以保持知识更新和可追溯性，同时降低模型重训成本。",
+      "projectEvidence": "在知识入库流程中，我们把文档切片并建立索引，支持按章节溯源。",
+      "followUps": ["如何处理检索噪声？", "召回与重排怎么评估？", "什么时候再考虑微调？"]
+    },
+    {
+      "id": "q-2",
+      "category": "System",
+      "difficulty": "hard",
+      "chapter": "系统设计与扩展性",
+      "title": "如果并发涨 10 倍，这套系统先会卡在哪？",
+      "answer": "优先瓶颈在 I/O 和检索吞吐，我们会先做索引冷热分层和任务队列隔离，再按热点模块水平扩展。",
+      "projectEvidence": "当前已经将索引构建、问答生成、文档扫描拆成独立任务类型。",
+      "followUps": ["你如何做容量预估？", "任务失败如何补偿？", "怎样避免队头阻塞？"]
+    },
+    {
+      "id": "q-3",
+      "category": "RAG",
+      "difficulty": "medium",
+      "chapter": "RAG 与检索工程",
+      "title": "回答里怎么保证‘引用可信’，不是模型瞎编？",
+      "answer": "回答产出必须带引用路径，前端展示中可以回溯到章节和文件，缺乏证据时明确标注未命中。",
+      "projectEvidence": "题目详情里保留了 guideMatches 与 fallbackMatches 两类证据。",
+      "followUps": ["引用断链怎么处理？", "证据冲突时怎么判优先级？", "如何评估引用质量？"]
+    },
+    {
+      "id": "q-4",
+      "category": "Frontend",
+      "difficulty": "easy",
+      "chapter": "前端工程化",
+      "title": "为什么要做运行时配置，而不是构建时写死？",
+      "answer": "运行时配置能在不重新打包的情况下切环境，特别适合 Pages 这类静态托管场景。",
+      "projectEvidence": "页面启动时读取 runtime-config.json，然后统一解析 API/WS 地址。",
+      "followUps": ["如何做缓存失效？", "配置读取失败时怎么兜底？", "如何避免配置被误改？"]
+    },
+    {
+      "id": "q-5",
+      "category": "Backend",
+      "difficulty": "medium",
+      "chapter": "后端稳定性",
+      "title": "你们如何处理长任务状态回传？",
+      "answer": "我们区分同步请求和流式状态推送，任务状态通过事件流持续更新，前端按 job id 局部刷新。",
+      "projectEvidence": "任务面板按 startedAt 排序并显示 live text，便于诊断。",
+      "followUps": ["断线重连策略是什么？", "状态乱序如何处理？", "日志如何脱敏？"]
+    },
+    {
+      "id": "q-6",
+      "category": "Agent",
+      "difficulty": "hard",
+      "chapter": "Agent 工作流",
+      "title": "你如何控制 Agent 不越权修改关键文件？",
+      "answer": "通过任务分层、最小权限和显式写入范围约束来降低误操作风险，敏感动作必须走人工确认。",
+      "projectEvidence": "在任务定义中区分探索、实现和发布阶段，限制每步动作边界。",
+      "followUps": ["审计日志怎么保存？", "回滚策略是什么？", "多人并行怎么避免冲突？"]
+    }
+  ]
+}

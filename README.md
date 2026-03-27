@@ -77,6 +77,37 @@ npm run setup:serve
 4. 打开一篇主线文档，查看底部的关联题目。
 5. 挑选一题生成个性化答案，并尝试进入“压力面试模式”进行对练。
 
+## GitHub Pages Demo（自动同步）
+
+仓库已包含 GitHub Pages 自动发布工作流：[`.github/workflows/pages.yml`](./.github/workflows/pages.yml)。  
+当前发布的是 `demo/` 目录下的**纯静态展示页**，不会请求后端，也不会触发模型调用。
+
+### 开启步骤
+
+1. 打开仓库 `Settings -> Pages`。
+2. `Build and deployment` 选择 `Source: GitHub Actions`。
+3. 推送一次 `main` 分支，等待 `Deploy Static Demo To GitHub Pages` 工作流完成。
+
+### 展示数据与运行时文案
+
+你可以直接改这两个文件来更新线上展示内容：
+
+- `demo/runtime-config.json`: 站点标题、副标题、更新时间
+- `demo/data/demo-data.json`: 统计卡片、章节进度、题目与回答示例
+
+例如，`demo/runtime-config.json`：
+
+```json
+{
+  "siteTitle": "OfferLoom Demo (Static)",
+  "subtitle": "纯前端展示版：只读取示例 JSON，不会发起任何模型请求。",
+  "demoBadge": "Demo Mode · 0 Token Cost",
+  "lastUpdated": "2026-03-27"
+}
+```
+
+更新文件并推送后，Pages 页面会自动同步。
+
 ## 界面预览
 
 ### 主工作台
